@@ -1,0 +1,71 @@
+body {
+    max-width: 650px;
+    margin: auto;
+}
+
+.title {
+    text-align: center;
+
+    h1 {
+        margin-top: 3em;
+        font-weight: 700;
+    }
+}
+
+.intro {
+    max-width: 650px;
+    margin: 2em auto;
+    justify-content: center;
+}
+
+.sqr-feet {
+    display: flex;
+}
+
+
+
+#square-feet-text {
+    margin-right: 0.5em;
+}
+
+#square-feet-label {
+    margin-left: 0.25em;
+}
+
+.searchDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 0em auto 2em auto;
+}
+
+.button-right {
+    margin-left: 1em;
+}
+
+#map {
+    max-width: 800px;
+    margin: auto;
+}
+
+.stepper {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    max-width: 700px;
+}
+
+.idk_layout {
+    display: flex;
+    flex-direction: row;
+    min-width: 300px;
+}
+
+.idk_button {
+    min-width: 100px;
+}
+
+.surfaceArea {
+    display: flex;
+    margin-top: 1.5em;
+}
