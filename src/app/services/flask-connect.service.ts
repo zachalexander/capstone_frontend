@@ -21,5 +21,13 @@ export class FlaskConnectService {
 
   postValues(value): Observable <any> {
     return this.http.post('http://localhost:5000/posts', value).pipe(map(response => response))
-}
+  }
+
+  postCoords(coords): Observable <any> {
+    return this.http.post('http://localhost:5000/coords', coords).pipe(map(response => response))
+  }
+
+  getFootage(): Observable <any> {
+    return this.http.get('http://localhost:5000/square-feet').pipe(map(response => response[0]))
+  }
 }

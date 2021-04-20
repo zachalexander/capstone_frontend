@@ -13,11 +13,8 @@ import { MatStepper } from '@angular/material/stepper';
 })
 
 
-
-
-
 export class AppComponent implements OnInit {
-  title = 'capstone-frontend';
+  title = 'Solar Calculator';
   searchFormGroup: FormGroup;
   drawFormGroup: FormGroup;
   firstFormGroup: FormGroup;
@@ -52,14 +49,41 @@ export class AppComponent implements OnInit {
   heading;
   isLinear = true;
   draw: boolean;
+  userData;
+  recSq;
+  roofArea;
+  yes = false;
+  no = false;
+  hideQuestion = false;
+  showConfirmHeading = false;
+  modelRun = false;
+  confirmSf = false;
 
   goForward(stepper: MatStepper){
     stepper.next();
+    this.measureTool.end();
+  }
+
+  measureManually(){
+    this.confirmSf = false;
+    this.measureTool.start();
+  }
+
+  reDraw() {
+    this.confirmSf = false;
+    this.measureTool.end();
+  }
+
+  confirmFootage(stepper: MatStepper){
+    this.confirmSf = true;
+    stepper.next()
+    this.roofArea = document.getElementById('square-feet').innerHTML;
+    this.measureTool.end()
   }
 
   ngOnInit(): void {
     this.initMap(); 
-    this.getValues();
+    // this.getValues();
 
     this.searchFormGroup = this._formBuilder.group({
       initCtrl: ['', Validators.required]
@@ -86,16 +110,47 @@ export class AppComponent implements OnInit {
     geocoder.geocode({ address: addressType}, (results, status) => {
       if (status === "OK") {
         resultsMap.setCenter(results[0].geometry.location);
-        new google.maps.Marker({
+        let marker = new google.maps.Marker({
           map: resultsMap,
           position: results[0].geometry.location,
         });
+
+        let lat = marker.getPosition().lat()
+        let lng = marker.getPosition().lng()
+
+        this.postCoords(lat, lng);
 
         resultsMap.setZoom(22)
       } else {
         alert("Geocode was not successful for the following reason: " + status);
       }
     });
+  }
+
+  postCoords(lat, lng): void {
+    this.userData = {
+        "latitude": lat,
+        "longitude": lng
+    }
+
+    console.log(this.userData)
+    
+    this.flaskConnectService.postCoords(this.userData).subscribe(data => {
+      if(!data) {
+        console.log('no data inputted!')
+      } else {
+        return 0;
+      }
+    })
+
+    this.flaskConnectService.getFootage().subscribe(data => {
+      if(!data) {
+        console.log('no data inputted!')
+      } else {
+        console.log(data['sqr_ft'])
+        this.recSq = data['sqr_ft']
+      }
+    })
   }
 
   
@@ -148,8 +203,6 @@ export class AppComponent implements OnInit {
       clickable: true
     })
 
-    console.log(this.measureTool._started)
-
     this.measureTool.addListener('measure_start', function() {
       polygon.setOptions({clickable: false});
     })
@@ -164,7 +217,6 @@ export class AppComponent implements OnInit {
       "click",
       () => {
         this.geocodeAddress(geocoder, map, this.address);
-        // this.goForward(stepper);
       }
     );
 
@@ -190,6 +242,23 @@ export class AppComponent implements OnInit {
     //   // console.log(google.maps.geometry.spherical.computeDistanceBetween(points[0], points[1]))
     // });
    
+  }
+
+  yesConfirm(){
+    this.yes = true;
+    this.no = false;
+
+    this.measureTool._area = '450'
+  }
+
+  noConfirm(){
+    this.yes = false;
+    this.no = true;
+    this.hideQuestion = true;
+  }
+
+  costBreakdown(){
+    this.modelRun = true;
   }
 
   calculateHeading(){
@@ -266,9 +335,9 @@ export class AppComponent implements OnInit {
   }
 
   postClick() {
-    let area = document.getElementById('square-feet').innerHTML;
-    console.log(area)
-    this.postValues(area, this.address)
+    // this.roof_area = document.getElementById('square-feet').innerHTML;
+    console.log(this.roofArea)
+    this.postValues(this.roofArea, this.address)
   }
 
   postValues(area, address): void {

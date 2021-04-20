@@ -28,23 +28,42 @@
                 <mat-step label="Please search for your household address above.">
                 </mat-step>
                 <mat-step label="Use the measurment tool to calculate the total square footage of your roof.">
-                        <p>Please select the "Draw" button and draw an outline around the surface of your roof:</p>
-                        <button *ngIf=draw (click)="measureTool.start()" mat-raised-button>Draw</button>
-                        <button *ngIf=draw (click)="measureTool.end()" mat-raised-button>Re-draw</button>
-                        <button *ngIf=draw (click)="goForward(stepper)" mat-raised-button>Confirm square footage</button>
                         <div class="surfaceArea">
-                                <p>Estimated surface area of your roof: </p><p id="square-feet"><strong>&nbsp; {{measureTool._area | number}}</strong></p> <p><strong>ft&#178;</strong></p>
+                                <p>According to Google's Project Sunroof, the recommended solar panel array size for your roof is: <strong>435 ft&#178;</strong></p>
+                        </div>
+
+                        <div *ngIf="!hideQuestion" class="checkUser">
+                                <p>Does that seem accurate to you?</p>
+                                <button mat-button (click)="yesConfirm()" color='primary'>Yes</button>
+                                <button mat-button (click)="noConfirm()" color='warn'>No</button>
+                        </div>
+
+                        <div *ngIf="no" class="manualDraw">
+                                <p>Click the "Estimate Manually" button and then draw a shape directly on your roof to estimate the surface area:</p>
+                                <button *ngIf=draw (click)="measureManually()" mat-button color='primary'>Estimate Manually</button>
+                                <button *ngIf=draw (click)="reDraw()" mat-button color='warn'>Re-draw</button>
+                        </div>
+                        
+                        <div class="finalConfirm">
+                                <p *ngIf="!confirmSf">Estimated size of your solar array: <strong id="square-feet">{{ measureTool._area | number}}</strong><strong> ft&#178;</strong></p>
+                                <p *ngIf="confirmSf">Estimated size of your solar array: <strong>{{ roofArea }}</strong><strong> ft&#178;</strong></p>
+                                <button *ngIf=draw (click)="confirmFootage(stepper)" mat-raised-button color="primary">Confirm square footage</button>
                         </div>
                 </mat-step>
                 <mat-step label="Identify the orientation of your roof.">
-                        <p>Find the ridge of your roof, select the "Draw" button, and draw a line with two points along the pitch:</p>
-                        <button *ngIf=draw (click)="measureTool.start()" mat-raised-button>Draw</button>
-                        <button *ngIf=draw (click)="measureTool.end()" mat-raised-button>Re-draw</button>
-                        <button mat-raised-button (click)="calculateHeading()">Find azimuth angle</button>
-                        <div class="surfaceArea">
-                                <p>Estimated azimuth angle of your roof: <strong>{{heading | number}} &deg;</strong></p>
-                                <button *ngIf=confirm (click)="goForward(stepper)" mat-raised-button>Confirm azimuth angle</button>
+                        <div class="manualDraw">
+                                <p>Find the ridge of your roof, select the "Draw" button, and draw a line with two points along the pitch:</p>
+                                <button *ngIf=draw (click)="measureTool.start()" mat-button color='primary'>Draw</button>
+                                <button *ngIf=draw (click)="measureTool.end()" mat-button color='warn'>Re-draw</button>
                         </div>
+                        <div class="findOrient">
+                                <p>Once you've drawn a line across your roof, click the "Find orientation" button.</p>
+                                <button mat-button (click)="calculateHeading()" color="primary">Find orientation</button>
+                        </div>
+                        <div class="azimuth">
+                                <p>Estimated orientation of your roof: <strong>{{heading | number}} &deg;</strong></p>
+                        </div>
+                        <button *ngIf=confirm (click)="goForward(stepper)" mat-raised-button color="primary">Confirm orientation</button>
                 </mat-step>
                 <mat-step [stepControl]="firstFormGroup">
                 <form [formGroup]="firstFormGroup">
@@ -55,7 +74,7 @@
                 </mat-form-field>
                 <div>
                 <button mat-button matStepperPrevious>Back</button>
-                <button mat-raised-button matStepperNext>Next</button>
+                <button mat-button matStepperNext>Next</button>
                 </div>
                 </form>
                 </mat-step>
@@ -65,7 +84,7 @@
                 <mat-label></mat-label>
                 <div class="idk_layout">
                         <input matInput formControlName="secondCtrl" placeholder="1,200">
-                        <button class="idk_button" mat-raised-button matStepperNext>I'm not sure</button>
+                        <button class="idk_button" mat-button matStepperNext>I'm not sure</button>
                 </div>
                 </mat-form-field>
                 <div>
@@ -75,11 +94,10 @@
                 </form>
                 </mat-step>
                 <mat-step>
-                <ng-template matStepLabel>Done</ng-template>
-                <p>You are now done.</p>
-                <div>
-                <button mat-button matStepperPrevious>Back</button>
-                <button mat-button (click)="stepper.reset()">Reset</button>
+                <ng-template matStepLabel>Run the solar calculator for your home</ng-template>
+                <button *ngIf="!modelRun" mat-raised-button color="primary" (click)="costBreakdown()">Get Cost Breakdown</button>
+                <div class="runModel">
+                <p *ngIf="modelRun">Processing...</p>
                 </div>
                 </mat-step>
         </mat-vertical-stepper>

@@ -67,5 +67,28 @@ body {
 
 .surfaceArea {
     display: flex;
-    margin-top: 1.5em;
+    border: 1px solid #333;
+    padding: 1em;
+    font-size: 0.85em;
+    background-color: lightyellow;
+    margin-bottom: .5em;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    vertical-align: middle;
+
+    p {
+        margin: 0 !important;
+    }
+}
+
+.azimuth {
+    display: flex;
+}
+
+.manualDraw, .finalConfirm, .azimuth, .findOrient, .runModel {
+    p {
+        margin-top: 1em;
+    }
 }
