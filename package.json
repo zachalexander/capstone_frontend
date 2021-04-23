@@ -25,6 +25,7 @@
     "@types/googlemaps": "^3.43.3",
     "measuretool-googlemaps-v3": "^1.0.2",
     "ngx-bootstrap": "^6.2.0",
+    "ngx-cookie-service": "^11.0.2",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"

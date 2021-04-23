@@ -27,9 +27,40 @@
         <mat-vertical-stepper [linear]="isLinear" #stepper>
                 <mat-step label="Please search for your household address above.">
                 </mat-step>
-                <mat-step label="Use the measurment tool to calculate the total square footage of your roof.">
+
+                <mat-step [stepControl]="secondFormGroup" label="What is the square footage (ft) of your house?">
+                <form [formGroup]="secondFormGroup">
+                <mat-form-field>
+                <mat-label></mat-label>
+                <div class="idk_layout">
+                        <input matInput formControlName="secondCtrl" placeholder="1,200">
+                </div>
+                </mat-form-field>
+                <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext (click)="squareFootageSubmit()">Next</button>
+                </div>
+                </form>
+                </mat-step>
+
+                <mat-step [stepControl]="firstFormGroup">
+                <form [formGroup]="firstFormGroup">
+                <ng-template matStepLabel>Roughly, what year was your house built?</ng-template>
+                <mat-form-field>
+                <mat-label>Estimated year</mat-label>
+                <input matInput placeholder="4" formControlName="firstCtrl" required>
+                </mat-form-field>
+                <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext (click)="yearBuiltSubmit()">Next</button>
+                </div>
+                </form>
+                </mat-step>
+
+                <mat-step label="Use the measurement tool to calculate the area of the solar array you'd like installed on your roof.">
                         <div class="surfaceArea">
-                                <p>According to Google's Project Sunroof, the recommended solar panel array size for your roof is: <strong>435 ft&#178;</strong></p>
+                                <p>According to Google's Project Sunroof, the recommended solar panel array size for your roof is: <strong>{{recSq | number }} ft&#178;</strong></p>
+                                <button mat-button (click)="getFootage()" color='warn'>SunRoof Estimate</button>
                         </div>
 
                         <div *ngIf="!hideQuestion" class="checkUser">
@@ -46,10 +77,11 @@
                         
                         <div class="finalConfirm">
                                 <p *ngIf="!confirmSf">Estimated size of your solar array: <strong id="square-feet">{{ measureTool._area | number}}</strong><strong> ft&#178;</strong></p>
-                                <p *ngIf="confirmSf">Estimated size of your solar array: <strong>{{ roofArea }}</strong><strong> ft&#178;</strong></p>
+                                <p *ngIf="confirmSf">Estimated size of your solar array: <strong id="sunroof-square-feet">{{ roofArea }}</strong><strong> ft&#178;</strong></p>
                                 <button *ngIf=draw (click)="confirmFootage(stepper)" mat-raised-button color="primary">Confirm square footage</button>
                         </div>
                 </mat-step>
+
                 <mat-step label="Identify the orientation of your roof.">
                         <div class="manualDraw">
                                 <p>Find the ridge of your roof, select the "Draw" button, and draw a line with two points along the pitch:</p>
@@ -65,37 +97,11 @@
                         </div>
                         <button *ngIf=confirm (click)="goForward(stepper)" mat-raised-button color="primary">Confirm orientation</button>
                 </mat-step>
-                <mat-step [stepControl]="firstFormGroup">
-                <form [formGroup]="firstFormGroup">
-                <ng-template matStepLabel>How many people live in your household?</ng-template>
-                <mat-form-field>
-                <mat-label># of household members</mat-label>
-                <input matInput placeholder="4" formControlName="firstCtrl" required>
-                </mat-form-field>
-                <div>
-                <button mat-button matStepperPrevious>Back</button>
-                <button mat-button matStepperNext>Next</button>
-                </div>
-                </form>
-                </mat-step>
-                <mat-step [stepControl]="secondFormGroup" label="What is the square footage (ft) of your house?">
-                <form [formGroup]="secondFormGroup">
-                <mat-form-field>
-                <mat-label></mat-label>
-                <div class="idk_layout">
-                        <input matInput formControlName="secondCtrl" placeholder="1,200">
-                        <button class="idk_button" mat-button matStepperNext>I'm not sure</button>
-                </div>
-                </mat-form-field>
-                <div>
-                <button mat-button matStepperPrevious>Back</button>
-                <button mat-button matStepperNext>Next</button>
-                </div>
-                </form>
-                </mat-step>
+                
+                
                 <mat-step>
                 <ng-template matStepLabel>Run the solar calculator for your home</ng-template>
-                <button *ngIf="!modelRun" mat-raised-button color="primary" (click)="costBreakdown()">Get Cost Breakdown</button>
+                <button *ngIf="!modelRun" (click)="postClick()" mat-raised-button color="primary">Get Cost Breakdown</button>
                 <div class="runModel">
                 <p *ngIf="modelRun">Processing...</p>
                 </div>
@@ -107,6 +113,6 @@
 
 
 
-<button (click)="postClick()">Post Test</button>
+
 
 <router-outlet></router-outlet>

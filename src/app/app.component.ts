@@ -1,10 +1,10 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, AfterViewInit} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {} from 'googlemaps';
 import { FlaskConnectService } from './services/flask-connect.service'
 import MeasureTool from 'measuretool-googlemaps-v3';
-import {FormBuilder, FormControl, FormGroup, SelectMultipleControlValueAccessor, Validators} from '@angular/forms';
-import { StepperSelectionEvent } from '@angular/cdk/stepper';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +24,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private flaskConnectService: FlaskConnectService,
-    private _formBuilder: FormBuilder
+    private _formBuilder: FormBuilder,
+    private cookieService: CookieService
   ) {}
   
 
@@ -58,6 +59,8 @@ export class AppComponent implements OnInit {
   showConfirmHeading = false;
   modelRun = false;
   confirmSf = false;
+  houseSquareFootage;
+  year_built;
 
   goForward(stepper: MatStepper){
     stepper.next();
@@ -106,7 +109,6 @@ export class AppComponent implements OnInit {
     resultsMap: google.maps.Map,
     addressType
   ) {
-    console.log(addressType)
     geocoder.geocode({ address: addressType}, (results, status) => {
       if (status === "OK") {
         resultsMap.setCenter(results[0].geometry.location);
@@ -130,10 +132,9 @@ export class AppComponent implements OnInit {
   postCoords(lat, lng): void {
     this.userData = {
         "latitude": lat,
-        "longitude": lng
+        "longitude": lng,
+        "address": this.address
     }
-
-    console.log(this.userData)
     
     this.flaskConnectService.postCoords(this.userData).subscribe(data => {
       if(!data) {
@@ -142,17 +143,19 @@ export class AppComponent implements OnInit {
         return 0;
       }
     })
+  }
 
-    this.flaskConnectService.getFootage().subscribe(data => {
+  getFootage(){
+    let address = this.address;
+    this.flaskConnectService.getFootage(address).subscribe(data => {
       if(!data) {
-        console.log('no data inputted!')
+        console.log('Sorry, we could not find a Project Sunroof Estimate for this address')
       } else {
-        console.log(data['sqr_ft'])
-        this.recSq = data['sqr_ft']
+        console.log(data)
+        this.recSq = data
       }
     })
   }
-
   
   getAddress(place: object) { 
     this.address = place['formatted_address']
@@ -190,7 +193,6 @@ export class AppComponent implements OnInit {
 
     map.setTilt(0)
 
-
     this.measureTool = new MeasureTool(map, {
       contextMenu: false,
       showSegmentLength: false,
@@ -219,28 +221,6 @@ export class AppComponent implements OnInit {
         this.geocodeAddress(geocoder, map, this.address);
       }
     );
-
-    // let points = [];
-    // this.measureTool.addListener('click', function(mouseEvent) {
-    //   // Close the current InfoWindow.
-
-    //   console.log(mouseEvent.latLng)
-    //   // infoWindow.close();
-    //   // console.log(mapsMouseEvent.latLng)
-    //   // points.push(mapsMouseEvent.latLng)
-    //   // let coords = points.push(new google.maps.LatLng(mapsMouseEvent.latLng))
-  
-    //   // Create a new InfoWindow.
-    //   // infoWindow = new google.maps.InfoWindow({
-    //   //   position: mapsMouseEvent.latLng,
-    //   // });
-    //   // infoWindow.setContent(
-    //   //   JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
-    //   // );
-    //   // console.log(points)
-    //   // var distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(latitude1, longitude1), new google.maps.LatLng(latitude2, longitude2));  
-    //   // console.log(google.maps.geometry.spherical.computeDistanceBetween(points[0], points[1]))
-    // });
    
   }
 
@@ -248,7 +228,7 @@ export class AppComponent implements OnInit {
     this.yes = true;
     this.no = false;
 
-    this.measureTool._area = '450'
+    this.measureTool._area = this.recSq
   }
 
   noConfirm(){
@@ -257,75 +237,23 @@ export class AppComponent implements OnInit {
     this.hideQuestion = true;
   }
 
-  costBreakdown(){
-    this.modelRun = true;
-  }
-
   calculateHeading(){
     this.confirm = true;
     let start_location = new google.maps.LatLng(this.measureTool._segments[0].start_location.lat, this.measureTool._segments[0].start_location.lng)
     let end_location = new google.maps.LatLng(this.measureTool._segments[0].end_location.lat, this.measureTool._segments[0].end_location.lng)
     this.heading = google.maps.geometry.spherical.computeHeading(start_location, end_location);
+
+    if (this.heading <= -90 && this.heading >= -180) {
+      this.heading = -(-180 - this.heading)
+    } else if(this.heading >= 90 && this.heading <= 180) {
+      this.heading = -180 + this.heading
+    } else if(this.heading >= 0 && this.heading < 90) {
+      this.heading = (-90 - (90-this.heading))
+    } else if(this.heading >= -90 && this.heading <0) {
+      this.heading = 90 + (180 - (90 - this.heading))
+    }
   }
 
-//   addDrawingControl(map){
-//       //add drawing control
-//       var drawingControl = new google.maps.drawing.DrawingManager(
-//       {
-//           drawingMode : null,
-//           drawingControl : true,
-//           drawingControlOptions :{
-//               position : google.maps.ControlPosition.TOP_CENTER,
-//               drawingModes : [
-//               google.maps.drawing.OverlayType.POLYLINE
-//               ]
-//           },
-//           polylineOptions : {
-//               editable:true,
-//               draggable:true,
-//               geodesic:true
-//           }
-//       });
-//       drawingControl.setMap(map);
-//       //end of add drawing control
-
-      // //add event listener
-      // let polylines = [];
-      // let area = []
-      // google.maps.event.addListener(drawingControl, 'polylinecomplete', function(polyline){
-      //         area = [];
-      //         polylines.push(polyline);
-      //         this.area = google.maps.geometry.spherical.computeArea(polyline.getPath());
-      //         this.area = parseInt(this.area.toFixed(2)) * 10.7639
-
-      //         let s = document.getElementById('square-feet');
-      //         let t = document.getElementById('square-feet-text');
-      //         let v = document.getElementById('square-feet-label');
-      //         s.innerHTML = this.area.toFixed(2);
-      //         t.innerHTML = "Estimated Roof Area: "
-      //         v.innerHTML = " square ft"
-      //         area.push(this.area)
-      // });
-      // this.area = google.maps.geometry.spherical.computeArea(polygon);
-
-//       
-      
-//       let azimuth = [];
-//       google.maps.event.addListener(drawingControl, 'polylinecomplete', function(polyline){
-//         azimuth = [];
-//         polylines.push(polyline);
-//         this.area = google.maps.geometry.spherical.computeArea(polyline.getPath());
-//         this.area = parseInt(this.area.toFixed(2)) * 10.7639
-
-//         let s = document.getElementById('square-feet');
-//         let t = document.getElementById('square-feet-text');
-//         let v = document.getElementById('square-feet-label');
-//         s.innerHTML = this.area.toFixed(2);
-//         t.innerHTML = "Estimated Roof Area: "
-//         v.innerHTML = " square ft"
-//         area.push(this.area)
-// });
-//   }
 
   getValues(): void {
     this.flaskConnectService.getValues().subscribe(values => {
@@ -335,19 +263,24 @@ export class AppComponent implements OnInit {
   }
 
   postClick() {
-    // this.roof_area = document.getElementById('square-feet').innerHTML;
-    console.log(this.roofArea)
-    this.postValues(this.roofArea, this.address)
+    this.roofArea = this.roofArea.replace(/,/g, '');
+    this.postValues(this.roofArea, this.houseSquareFootage.secondCtrl, this.address, this.heading, this.year_built.firstCtrl)
   }
 
-  postValues(area, address): void {
+  postValues(area, houseFootage, address, azimuth, yearBuilt): void {
+
+    this.modelRun = true;
     area = parseInt(area);
+    houseFootage = parseInt(houseFootage)
     let values = {
-        "area": area,
-        "address": address
+        "panel_area": area,
+        "house_footage": houseFootage,
+        "address": address,
+        "azimuth": azimuth,
+        "year_built": yearBuilt
         }
 
-        console.log(values)
+    console.log(values)
     this.flaskConnectService.postValues(values).subscribe(data => {
       if(!data) {
         console.log('no data inputted!')
@@ -355,9 +288,28 @@ export class AppComponent implements OnInit {
         return 0;
       }
     })
+
+    this.flaskConnectService.runModel(address).subscribe(data => {
+      if(!data) {
+        console.log('cannot run model!')
+      } else {
+        console.log('model response', data)
+        this.modelRun = false;
+      }
+    })
   }
 
   findArea(){
     console.log(this.measureTool)
+  }
+
+  squareFootageSubmit(){
+    console.log(this.secondFormGroup.value)
+    this.houseSquareFootage = this.secondFormGroup.value;
+  }
+
+  yearBuiltSubmit(){
+    console.log(this.firstFormGroup.value)
+    this.year_built = this.firstFormGroup.value;
   }
  }

@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule} from '@angular/common/http'
+import { CookieService } from 'ngx-cookie-service'
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -32,6 +33,7 @@ import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
     ReactiveFormsModule
   ],
   providers: [
+    CookieService,
     {
       provide: STEPPER_GLOBAL_OPTIONS,
       useValue: {displayDefaultIndicatorType: false}
