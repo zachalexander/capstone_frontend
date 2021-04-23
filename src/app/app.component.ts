@@ -356,6 +356,27 @@ export class AppComponent implements OnInit {
     .y(function(d) { return height - y(d['I=$15k, r=.175']); })
     .curve(d3.curveMonotoneX);
 
+    const valueline2 = d3.line()
+    .x(function(d, i) { return x(i); })
+    .y(function(d) { return height - y(d['I=$15k, r=.2']); })
+    .curve(d3.curveMonotoneX);
+
+    const valueline3 = d3.line()
+    .x(function(d, i) { return x(i); })
+    .y(function(d) { return height - y(d['I=$25k, r=.2']); })
+    .curve(d3.curveMonotoneX);
+
+    const valueline4 = d3.line()
+    .x(function(d, i) { return x(i); })
+    .y(function(d) { return height - y(d['I=$25k, r=.175']); })
+    .curve(d3.curveMonotoneX);
+
+    const valueline5 = d3.line()
+    .x(function(d, i) { return x(i); })
+    .y(function(d) { return height - y(d['Regular Grid Service']); })
+    .curve(d3.curveMonotoneX);
+
+
     const svg = d3.select('.top-wrapper').append('svg')
                 .attr('width',  width)
                 .attr('height', height)
@@ -367,14 +388,45 @@ export class AppComponent implements OnInit {
     //           .attr('class', 'area')
     //           .attr('d', area);
 
-      svg.append('path')
+        svg.append('path')
           .datum(datapull)
           .attr('class', 'line')
           .attr('fill', 'none')
           .attr('stroke-width', '3px')
-          .attr('stroke', '#f2f2f2')
+          .attr('stroke', '#525564')
           .attr('d', valueline);
 
+        svg.append('path')
+          .datum(datapull)
+          .attr('class', 'line')
+          .attr('fill', 'none')
+          .attr('stroke-width', '3px')
+          .attr('stroke', '#74828F')
+          .attr('d', valueline2);
+
+        svg.append('path')
+          .datum(datapull)
+          .attr('class', 'line')
+          .attr('fill', 'none')
+          .attr('stroke-width', '3px')
+          .attr('stroke', '#96C0CE')
+          .attr('d', valueline3);
+
+        svg.append('path')
+          .datum(datapull)
+          .attr('class', 'line')
+          .attr('fill', 'none')
+          .attr('stroke-width', '3px')
+          .attr('stroke', '#BEB9B5')
+          .attr('d', valueline4);
+
+        svg.append('path')
+          .datum(datapull)
+          .attr('class', 'line')
+          .attr('fill', 'none')
+          .attr('stroke-width', '3px')
+          .attr('stroke', '#C25B56')
+          .attr('d', valueline5);
                     
   }
 
