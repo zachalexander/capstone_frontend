@@ -5,6 +5,7 @@ import MeasureTool from 'measuretool-googlemaps-v3';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
 import { CookieService } from 'ngx-cookie-service';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ export class AppComponent implements OnInit {
   secondFormGroup: FormGroup;
   isEditable = false;
   confirm = false;
+  mobile;
 
   constructor(
     private flaskConnectService: FlaskConnectService,
@@ -296,15 +298,84 @@ export class AppComponent implements OnInit {
       } else {
         // this.graphData = data;
 
-        this.drawGraph(data)
+        const width = window.innerWidth;
+        const height = 500;
+        const widthsvg = 450;
+
+        if (width >= 600) {
+          this.mobile = false;
+        } else {
+          this.mobile = true;
+        }
+
+        let yheight = 250;
+
+        if (width <= 600) {
+          yheight = 200;
+        }
+
+        this.drawGraph(width, height, data, yheight, widthsvg)
         
         this.modelRun = false;
       }
     })
   }
 
-  drawGraph(data){
-    this.graphData = data;
+
+  drawGraph(width, height, datapull, yheight, widthsvg){
+    this.graphData = datapull;
+    console.log(this.graphData)
+    console.log(width)
+    console.log(height)
+    console.log(yheight)
+    console.log(widthsvg)
+
+    if (width >= 450) {
+      width = widthsvg;
+    }
+
+    const parseTime = d3.timeParse('%m/%d/%Y');
+
+    const x = d3.scaleTime().range([0, width]);
+    x.domain([0, datapull.length]);
+
+    const y = d3.scaleLinear().range([0, yheight]);
+    y.domain([-25000, 40000]);
+
+    // const area = d3.area()
+    // .x(function(d) { return x(parseTime(d.date)); })
+    // .y0(height)
+    // .y1(function(d) { return height - y(d.cases); })
+    // .curve(d3.curveMonotoneX);
+
+    console.log(x(2))
+    console.log(y(-15000))
+
+    const valueline = d3.line()
+    .x(function(d, i) { return x(i); })
+    .y(function(d) { return height - y(d['I=$15k, r=.175']); })
+    .curve(d3.curveMonotoneX);
+
+    const svg = d3.select('.top-wrapper').append('svg')
+                .attr('width',  width)
+                .attr('height', height)
+                .attr('x', 0)
+                .attr('y', 0)
+
+    //       svg.append('path')
+    //           .datum(datapull)
+    //           .attr('class', 'area')
+    //           .attr('d', area);
+
+      svg.append('path')
+          .datum(datapull)
+          .attr('class', 'line')
+          .attr('fill', 'none')
+          .attr('stroke-width', '3px')
+          .attr('stroke', '#f2f2f2')
+          .attr('d', valueline);
+
+                    
   }
 
   findArea(){

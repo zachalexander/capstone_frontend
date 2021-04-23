@@ -46,10 +46,6 @@ export class LinechartComponent implements OnInit {
 
     console.log(datapull);
 
-    // d3.json(datapull, function(error, root){
-    //   console.log(root)
-      
-    // })
 
     // const x = d3.scaleTime().range([0, width]);
     // x.domain(d3.extent(datapull, function(d) { return parseTime(d.date); }));
