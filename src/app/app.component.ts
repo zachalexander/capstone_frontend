@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ɵgetDebugNode__POST_R3__} from '@angular/core';
 import {} from 'googlemaps';
 import { FlaskConnectService } from './services/flask-connect.service'
 import MeasureTool from 'measuretool-googlemaps-v3';
@@ -61,6 +61,7 @@ export class AppComponent implements OnInit {
   confirmSf = false;
   houseSquareFootage;
   year_built;
+  graphData;
 
   goForward(stepper: MatStepper){
     stepper.next();
@@ -293,10 +294,17 @@ export class AppComponent implements OnInit {
       if(!data) {
         console.log('cannot run model!')
       } else {
-        console.log('model response', data)
+        // this.graphData = data;
+
+        this.drawGraph(data)
+        
         this.modelRun = false;
       }
     })
+  }
+
+  drawGraph(data){
+    this.graphData = data;
   }
 
   findArea(){
@@ -304,12 +312,10 @@ export class AppComponent implements OnInit {
   }
 
   squareFootageSubmit(){
-    console.log(this.secondFormGroup.value)
     this.houseSquareFootage = this.secondFormGroup.value;
   }
 
   yearBuiltSubmit(){
-    console.log(this.firstFormGroup.value)
     this.year_built = this.firstFormGroup.value;
   }
  }

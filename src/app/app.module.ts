@@ -14,11 +14,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
+import { LinechartComponent } from './components/linechart/linechart.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AutocompleteComponent
+    AutocompleteComponent,
+    LinechartComponent
   ],
   imports: [
     BrowserModule,
