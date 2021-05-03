@@ -92,3 +92,17 @@ body {
         margin-top: 1em;
     }
 }
+
+.top-wrapper {
+    margin: auto;
+    display: flex;
+}
+
+.projection-title {
+    h4 {
+        align-items: center;
+        text-align: center;
+        margin: 1em auto -2em auto;
+        font-weight: 700;
+    }
+}
