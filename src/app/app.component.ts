@@ -127,6 +127,9 @@ export class AppComponent implements OnInit {
               this.loading = false;
               this.scraping = false;
               this.noDataScrape = true;
+              this.justRealtorDataScrape = false;
+              this.justSunroofDataScrape = false;
+              this.fullDataScrape = false;
             } else if (response.status == 'found realtor data but no sunroof data!') {
               console.log(response.status)
               console.log(response)              
@@ -134,7 +137,10 @@ export class AppComponent implements OnInit {
               this.yearBuilt = response.year_built;
               this.loading = false;
               this.scraping = false;
+              this.noDataScrape = false;
               this.justRealtorDataScrape = true;
+              this.justSunroofDataScrape = false;
+              this.fullDataScrape = false;
             } else if (response.status == 'found sunroof data but no realtor data!') {
               console.log(response.status)
               console.log(response)
@@ -142,7 +148,10 @@ export class AppComponent implements OnInit {
               this.recSq = response.estimate;
               this.loading = false;
               this.scraping = false;
+              this.noDataScrape = false;
+              this.justRealtorDataScrape = false;
               this.justSunroofDataScrape = true;
+              this.fullDataScrape = false;
             } else if (response.status == 'found both sunroof and realtor data!'){
               console.log(response.status)
               console.log(response)
@@ -152,6 +161,9 @@ export class AppComponent implements OnInit {
               this.recSq = response.estimate;
               this.loading = false;
               this.scraping = false;
+              this.noDataScrape = false;
+              this.justRealtorDataScrape = false;
+              this.justSunroofDataScrape = false;
               this.fullDataScrape = true;
             } else {
               console.log(response)
@@ -322,6 +334,7 @@ export class AppComponent implements OnInit {
     this.no = false;
 
     this.measureTool._area = this.recSq
+    this.roofArea = this.recSq
   }
 
   noConfirm(){
@@ -365,14 +378,19 @@ export class AppComponent implements OnInit {
 
   postClick() {
     this.roofArea = this.roofArea.replace(/,/g, '');
+    this.modelRun = true;
     this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built)
   }
 
   // function to post values to the backend database and trigger the model run
   postValues(area, houseFootage, address, azimuth, yearBuilt): void {
 
-    this.modelRun = true;
     area = parseInt(area);
+    houseFootage = parseInt(houseFootage)
+    azimuth = parseInt(azimuth)
+    yearBuilt = parseInt(yearBuilt)
+
+
     houseFootage = parseInt(houseFootage)
     let values = {
         "panel_area": area,
@@ -392,39 +410,39 @@ export class AppComponent implements OnInit {
       }
     })
 
-    // triggering the model run and if successful, drawing our graph
-    this.flaskConnectService.runModel(address).subscribe(data => {
-      if(!data) {
-        console.log('cannot run model!')
-        this.postError = true;
-      } else {
-
-        const width = window.innerWidth;
-        const height = 500;
-        const widthsvg = 450;
-
-        if (width >= 600) {
-          this.mobile = false;
+      // triggering the model run and if successful, drawing our graph
+      this.flaskConnectService.runModel(address).subscribe(data => {
+        if(!data) {
+          console.log('cannot run model!')
+          this.postError = true;
         } else {
-          this.mobile = true;
+  
+          const width = window.innerWidth;
+          const height = 500;
+          const widthsvg = 450;
+  
+          if (width >= 600) {
+            this.mobile = false;
+          } else {
+            this.mobile = true;
+          }
+  
+          let yheight = 250;
+  
+          if (width <= 600) {
+            yheight = 200;
+          }
+  
+          let maxvalues_array = []
+          for(let i=0; i < data.length; i++){
+            maxvalues_array.push(data[i]['I=$25k, r=.2'])
+          }
+  
+          this.drawGraph(width, height, data, yheight, widthsvg, maxvalues_array)
+          
+          this.modelRun = false;
         }
-
-        let yheight = 250;
-
-        if (width <= 600) {
-          yheight = 200;
-        }
-
-        let maxvalues_array = []
-        for(let i=0; i < data.length; i++){
-          maxvalues_array.push(data[i]['I=$25k, r=.2'])
-        }
-
-        this.drawGraph(width, height, data, yheight, widthsvg, maxvalues_array)
-        
-        this.modelRun = false;
-      }
-    })
+      })
   }
 
 
@@ -435,10 +453,6 @@ export class AppComponent implements OnInit {
 
     this.graphData = datapull;
     console.log(this.graphData)
-    console.log('width', width)
-    console.log('height', height)
-    console.log('height of y', yheight)
-    console.log('width of svg', widthsvg) 
 
     const margin = { top: 20, right: 60, bottom: 20, left: 60};
     height = height - margin.top - margin.bottom;
@@ -463,11 +477,8 @@ export class AppComponent implements OnInit {
     const y = d3.scaleLinear().range([yheight, 0]);
     y.domain([-45000, maxValue]);
 
-    // const area = d3.area()
-    // .x(function(d) { return x(parseTime(d.date)); })
-    // .y0(height)
-    // .y1(function(d) { return height - y(d.cases); })
-    // .curve(d3.curveMonotoneX);
+    console.log('low', datapull[181])
+    console.log('high', datapull[182])
 
     const valueline = d3.line()
     .x(function(d, i) { return x(i); })
@@ -505,10 +516,52 @@ export class AppComponent implements OnInit {
                 .attr('transform', 'translate(' + graphShift + ', 0)')
                 .attr('class', 'graph')
 
-    //       svg.append('path')
-    //           .datum(datapull)
-    //           .attr('class', 'area')
-    //           .attr('d', area);
+          svg.append('defs')
+              .append('pattern')
+                .attr('id', 'diagonalHatch')
+                .attr('patternUnits', 'userSpaceOnUse')
+                .attr('width', 4)
+                .attr('height', 4)
+              .append('path')
+                .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+                .attr('stroke', '#000000')
+                .attr('stroke-width', 1);
+
+        svg.append("rect")
+          .attr("x", x(datapull[181] * 12))
+          .attr("y", margin.top + 10)
+          .attr("width", (x(datapull[182] * 12)) - (x(datapull[181] * 12)))
+          .attr("height", yheight + 10)
+          .style("fill", "url(#diagonalHatch)")
+          .attr("fill-opacity", 0.2)
+
+        svg.append("text")
+          .attr("x", (x(datapull[181]) * 12) - 30)
+          .attr("y", yheight / 4)
+          .text('Likely break even')
+          .attr("font-size", "0.75em")
+          .attr("font-weight", "700");
+        
+        svg.append("text")
+          .attr("x", (x(datapull[181]) * 12) - 20)
+          .attr("y", yheight / 4 + 15)
+          .text('low: ' + parseInt(datapull[181]) + ' years')
+          .attr("font-size", "0.75em")
+          .attr("font-weight", "700");
+
+        svg.append("text")
+          .attr("x", (x(datapull[182]) * 12) - 30)
+          .attr("y", yheight / 4)
+          .text('Likely break even')
+          .attr("font-size", "0.75em")
+          .attr("font-weight", "700");
+        
+        svg.append("text")
+          .attr("x", (x(datapull[182]) * 12) - 20)
+          .attr("y", yheight / 4 + 15)
+          .text('high: ' + parseInt(datapull[182]) + ' years')
+          .attr("font-size", "0.75em")
+          .attr("font-weight", "700");
 
             // Add the x-axis.
         svg.append('g')
