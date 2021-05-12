@@ -12,6 +12,8 @@ import {MatButtonModule} from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReactiveFormsModule } from '@angular/forms';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { LinechartComponent } from './components/linechart/linechart.component';
@@ -32,6 +34,8 @@ import { LinechartComponent } from './components/linechart/linechart.component';
     MatStepperModule,
     MatFormFieldModule,
     MatInputModule,
+    MatTableModule,
+    MatProgressSpinnerModule,
     ReactiveFormsModule
   ],
   providers: [

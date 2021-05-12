@@ -140,3 +140,98 @@ body {
     border-top-color: #000000;
     animation: spinner .8s linear infinite;
   }
+
+  .input-item {
+      text-align: center;
+      height: 3em;
+  }
+
+  table {
+      vertical-align: middle !important;
+
+      thead {
+          text-align: center !important;
+      }
+
+      td {
+          padding: 0 !important;
+      }
+  }
+
+  .alert {
+      border-radius: 0 !important;
+
+      p {
+          margin: 0;
+      }
+  }
+
+  .scrapeItem {
+      font-size: 1.25em;
+  }
+
+  .drawButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    vertical-align: middle;
+    align-items: flex-end;
+    padding: 1.5em 0em;
+  }
+
+  .drawModeNotice {
+      font-size: 0.95em;
+  }
+
+  .sunroofImage {
+      display: flex;
+      flex-direction: column;
+
+      .sunroof-key{
+          margin: 0.25em 0;
+          max-width: 350px;
+      }
+  }
+
+  .backSunroof {
+    padding: 2em 0;
+  }
+
+  .sunroof-header {
+      font-weight: 700;
+  }
+
+  .finalConfirm{
+    display: flex;
+    flex-direction: column;
+    margin-top: 1em;
+    border: 1px solid #ddd;
+    max-width: 350px;
+    padding: 1em 1em 2em 1em;
+    text-align: center;
+
+    button {
+        max-width: 200px;
+        margin: auto;
+    }
+
+  }
+
+  #azimuthEdit, #panelEdit, #yearEdit, #squareFeet {
+      font-size: 0.75em;
+      font-weight: 700;
+  }
+
+  .weAreReady {
+    margin: 3em auto;
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    button {
+        max-width: 200px;
+    }
+  }

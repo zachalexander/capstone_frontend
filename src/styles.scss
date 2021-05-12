@@ -3,7 +3,20 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+$theme-colors: (
+  "primary": #0074d9,
+  "danger": #ff4136
+);
+
 .projection {
     margin: auto !important;
+}
+
+.table-sm td {
+    padding: 0 !important;
+}
+
+td {
+    vertical-align: middle !important;
 }
 
