@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LinechartComponent } from './linechart.component';
+import { ModalSunroofComponent } from './modal-sunroof.component';
 
-describe('LinechartComponent', () => {
-  let component: LinechartComponent;
-  let fixture: ComponentFixture<LinechartComponent>;
+describe('ModalSunroofComponent', () => {
+  let component: ModalSunroofComponent;
+  let fixture: ComponentFixture<ModalSunroofComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LinechartComponent ]
+      declarations: [ ModalSunroofComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LinechartComponent);
+    fixture = TestBed.createComponent(ModalSunroofComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

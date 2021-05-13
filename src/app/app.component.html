@@ -17,19 +17,20 @@
 
 
 
-<!--<div class="searchDiv">
+<div class="searchDiv">
         <AutocompleteComponent (setAddress)="getAddress($event)" addressType="geocode"></AutocompleteComponent>
-        <button class="button-right" id="submit" mat-flat-button type="submit" color="primary" [disabled]="scraping">Search</button>
+        <button class="button-right" id="submit" mat-flat-button type="submit" color="primary" [disabled]="scraping">Let's Get Started</button>
 </div>
 
-<div *ngIf="scraping" class="scraper-delay" [class.spinner]="scraping">
-        <p *ngIf="scrapeSunroof">Gathering data from <strong>Google's Project Sunroof and Realtor.com</strong></p>
-</div>-->
+<div *ngIf="scraping" class="scraper-delay">
+        <p *ngIf="scrapeSunroof">Gathering data from <strong>Google's Project Sunroof and Realtor.com</strong>. This may take a minute.</p>
+        <mat-spinner></mat-spinner>
+</div>
 
 
 <div id='map' style="width:0%;height:0px;visibility:hidden"></div>
 
-
+<div *ngIf="!ready" class = "stepSystem">
 <div *ngIf="fullDataScrape" class="stepper">
         <mat-vertical-stepper [linear]="isLinear" #stepper>
                 <!--STEP ONE-->
@@ -112,13 +113,20 @@
                                 <hr>
 
                                 <h4 class="sunroof-header">Let's Draw Our Panel Area</h4>
-                                <p>Now, below we have provided an aerial image of your roof from Google Maps. Using our interactive drawing tool, please draw a box on your roof where you expect to install your solar panel array.</p>
+                                <p>Now, below we have provided an aerial image of your roof from Google Maps. Using our interactive drawing tool, please draw a box on your roof where you expect to install your solar panel array. If you have trouble, please refer to the drawing tool instructions below.</p>
+                                <main id="logout-button-holder" class="alert alert-light">
+                                        <button mat-button color='primary' (click)="openModalSunroof()">Drawing Tool Instructions</button>
+                                        <button (click)="confirmMeasureFootage(stepper)" id="submit" mat-flat-button type="submit" class="confirmaz" [disabled]="!confirm">Confirm square footage</button>
+                                </main>
                                 </div>
-                                <div class="drawButtons">
+                                <div class="drawButtons alert alert-light">
                                         <button *ngIf="!drawMode" (click)="measureManually()" mat-button color='primary'>Start Drawing</button>
                                         <button *ngIf="drawMode" (click)="reDraw()" mat-button color='warn'>Re-draw</button>
-                                        <button *ngIf="drawMode" mat-button color='info'>Total Area: <strong id="square-feet">{{ measureTool._area | number}}</strong><strong> ft&#178;</strong></button>
-                                        <button *ngIf="drawMode" (click)="confirmFootage(stepper)" mat-flat-button color="primary">Confirm square footage</button>
+                                        <div class="orientation">
+                                                <button mat-button (click)="confirmMeasure()" color="primary" class="orientbtn">Find panel area</button>             
+                                                <mark class="noheading" *ngIf="!area"><p class="orientation-value">Panel Area: <strong>---.-- ft&#178;</strong></p></mark>
+                                                <mark class="heading" *ngIf="area"><p class="orientation-value">Panel Area: <strong *ngIf="area" id="square-feet">{{roofArea | number}}</strong><strong> ft&#178;</strong></p></mark>
+                                        </div>
                                 </div>
                         </div>
                         
@@ -126,35 +134,36 @@
                                 <div id='mapMove'></div>
                         </div>
 
-                        <div *ngIf="no">
-                                <small class="drawingInstructions"><strong>Instructions: </strong>After selecting "Start Drawing", click on the map to draw your first point. Connect all points in order to obtain an area calculation. The final shape should represent the area of your solar panel array.</small>
-                        </div>
-
                         <div *ngIf="no" class="backSunroof">
                                 <button *ngIf=draw (click)="backToEstimate()" mat-button color='warn'> < Back to Project Sunroof Estimate</button>
                         </div>
                 
-                        <div *ngIf="yes" class="finalConfirm">
-                                <p *ngIf="confirmSf">Estimated size of your solar array: <strong id="sunroof-square-feet">{{ roofArea }}</strong><strong> ft&#178;</strong></p>
-                                <button *ngIf=draw (click)="confirmFootage(stepper)" mat-flat-button color="primary">Confirm square footage</button>
+                        <div *ngIf="yes" class="alert-sizeestimate alert-light">
+                                <p *ngIf="confirmSf">Estimated size of your solar array: <strong id="sunroof-square-feet">{{ roofArea }}</strong><strong class="feet"> ft&#178;</strong></p>
+                                <button (click)="confirmFootage(stepper)" class="confirmButton" mat-flat-button color="primary">Confirm square footage</button>
                         </div>
                 </mat-step>
 
                 <mat-step label="Identify the orientation of your roof.">
+                        <h4 class="sunroof-header">What Direction Will Your Panels Be Facing?</h4>
+                        <p>Another important factor is the direction your panels will face relative to due South. This will be determined by where you decide to put panels on your roof. Using our interactive drawing tool, we will determine the orientation of your roof at the location you plan to install panels.</p>
+
+                        <main id="logout-button-holder" class="alert alert-light">
+                                <button mat-button color='primary' (click)="openModal()">Drawing Tool Instructions</button>
+                                <button (click)="goForward(stepper)" id="submit" mat-flat-button type="submit" class="confirmaz" [disabled]="!confirm">Confirm orientation</button>
+                        </main>
+                        <div class="alert alert-light manualDraw">
+                                <div>
+                                <button *ngIf="!drawMode" (click)="measureManually()" mat-button color='primary'>Start Drawing</button>
+                                <button *ngIf="drawMode" (click)="reDraw()" mat-button color='light'>Re-draw</button>
+                                </div>
+                                <div class="orientation">
+                                <button mat-button (click)="calculateHeading()" color="primary" class="orientbtn">Find orientation</button>             
+                                <mark class="noheading" *ngIf="!heading"><p class="orientation-value">Orientation: <strong>--.---&deg;</strong></p></mark>
+                                <mark class="heading" *ngIf="heading"><p class="orientation-value">Orientation: <strong *ngIf="heading">{{heading | number}}&deg;</strong></p></mark>
+                                </div>
+                        </div>
                         <div id='mapMoveOrient'></div>
-                        <div class="manualDraw">
-                                <p>Find the ridge of your roof, select the "Draw" button, and draw a line with two points along the pitch:</p>
-                                <button *ngIf=draw (click)="measureTool.start()" mat-button color='primary'>Draw</button>
-                                <button *ngIf=draw (click)="measureTool.end()" mat-button color='warn'>Re-draw</button>
-                        </div>
-                        <div class="findOrient">
-                                <p>Once you've drawn a line across your roof, click the "Find orientation" button.</p>
-                                <button mat-button (click)="calculateHeading()" color="primary">Find orientation</button>
-                        </div>
-                        <div class="azimuth">
-                                <p>Estimated orientation of your roof: <strong>{{heading | number}}&deg;</strong></p>
-                        </div>
-                        <button *ngIf=confirm (click)="goForward(stepper)" mat-flat-button color="primary">Confirm orientation</button>
                 </mat-step>
                 
                 
@@ -218,11 +227,12 @@
                                 </tbody>
                         </table>  
                 
-                <div>
+                <div class="readyToSubmit">
                 <button *ngIf="!ready" (click)="tableCheck()" mat-flat-button color="primary">These Estimates Look Good</button>
                 </div>
                 </mat-step>
         </mat-vertical-stepper>
+        <hr>
 </div>
 
 <div *ngIf="noDataScrape" class="stepper">
@@ -264,37 +274,47 @@
 
                 <mat-step label="Let's find the proper size of a solar array for your roof.">
 
-                        <div id='mapMove'></div>
-
-                        <div class="manualDraw">
-                                <p>Click the "Estimate Manually" button and 
-                                then draw a shape directly on your roof on the Google Maps image above to 
-                                estimate the area you'd like to place solar panels:</p>
-                                <button *ngIf=draw (click)="measureManually()" mat-button color='primary'>Estimate Manually</button>
-                                <button *ngIf=draw (click)="reDraw()" mat-button color='warn'>Re-draw</button>
-                        </div>
+                <h4 class="sunroof-header">Let's Draw Our Panel Area</h4>
                         
-                        <div>
-                                <p *ngIf="!confirmSf">Estimated size of your solar array: <strong id="square-feet">{{ measureTool._area | number}}</strong><strong> ft&#178;</strong></p>
-                                <button *ngIf=draw (click)="confirmFootage(stepper)" mat-flat-button color="primary">Confirm square footage</button>
+                        <p>Below we have provided an aerial image of your roof from Google Maps. Using our interactive drawing tool, please draw a box on your roof where you expect to install your solar panel array. If you have trouble, please refer to the drawing tool instructions below.</p>
+                        <main id="logout-button-holder" class="alert alert-light">
+                                <button mat-button color='primary' (click)="openModalSunroof()">Drawing Tool Instructions</button>
+                                <button (click)="confirmMeasureFootage(stepper)" id="submit" mat-flat-button type="submit" class="confirmaz" [disabled]="!confirm">Confirm square footage</button>
+                        </main>
+                
+                        <div class="drawButtons alert alert-light">
+                                <button *ngIf="!drawMode" (click)="measureManually()" mat-button color='primary'>Start Drawing</button>
+                                <button *ngIf="drawMode" (click)="reDraw()" mat-button color='warn'>Re-draw</button>
+                                <div class="orientation">
+                                        <button mat-button (click)="confirmMeasure()" color="primary" class="orientbtn">Find panel area</button>             
+                                        <mark class="noheading" *ngIf="!area"><p class="orientation-value">Panel Area: <strong>---.-- ft&#178;</strong></p></mark>
+                                        <mark class="heading" *ngIf="area"><p class="orientation-value">Panel Area: <strong *ngIf="area" id="square-feet">{{roofArea | number}}</strong><strong> ft&#178;</strong></p></mark>
+                                </div>
                         </div>
+
+                        <div id='mapMove'></div>
                 </mat-step>
 
                 <mat-step label="Identify the orientation of your roof.">
+                        <h4 class="sunroof-header">What Direction Will Your Panels Be Facing?</h4>
+                        <p>Another important factor is the direction your panels will face relative to due South. This will be determined by where you decide to put panels on your roof. Using our interactive drawing tool, we will determine the orientation of your roof at the location you plan to install panels.</p>
+
+                        <main id="logout-button-holder" class="alert alert-light">
+                                <button mat-button color='primary' (click)="openModal()">Drawing Tool Instructions</button>
+                                <button (click)="goForward(stepper)" id="submit" mat-flat-button type="submit" class="confirmaz" [disabled]="!confirm">Confirm orientation</button>
+                        </main>
+                        <div class="alert alert-light manualDraw">
+                                <div>
+                                <button *ngIf="!drawMode" (click)="measureManually()" mat-button color='primary'>Start Drawing</button>
+                                <button *ngIf="drawMode" (click)="reDraw()" mat-button color='light'>Re-draw</button>
+                                </div>
+                                <div class="orientation">
+                                <button mat-button (click)="calculateHeading()" color="primary" class="orientbtn">Find orientation</button>             
+                                <mark class="noheading" *ngIf="!heading"><p class="orientation-value">Orientation: <strong>--.---&deg;</strong></p></mark>
+                                <mark class="heading" *ngIf="heading"><p class="orientation-value">Orientation: <strong *ngIf="heading">{{heading | number}}&deg;</strong></p></mark>
+                                </div>
+                        </div>
                         <div id='mapMoveOrient'></div>
-                        <div class="manualDraw">
-                                <p>Find the ridge of your roof, select the "Draw" button, and draw a line with two points along the pitch:</p>
-                                <button *ngIf=draw (click)="measureTool.start()" mat-button color='primary'>Draw</button>
-                                <button *ngIf=draw (click)="measureTool.end()" mat-button color='warn'>Re-draw</button>
-                        </div>
-                        <div class="findOrient">
-                                <p>Once you've drawn a line across your roof, click the "Find orientation" button.</p>
-                                <button mat-button (click)="calculateHeading()" color="primary">Find orientation</button>
-                        </div>
-                        <div class="azimuth">
-                                <p>Estimated orientation of your roof: <strong>{{heading | number}} &deg;</strong></p>
-                        </div>
-                        <button *ngIf=confirm (click)="goForward(stepper)" mat-flat-button color="primary">Confirm orientation</button>
                 </mat-step>
                 
                 
@@ -314,52 +334,52 @@
                                                 <td *ngIf="editTableSquare">
                                                         <input name="squareFootage" id="squareFootage" type="text" placeholder="Enter new sqr ft." />
                                                 </td>
-                                                <td *ngIf="!editTableSquare">{{houseSquareFootage}}</td>
+                                                <td *ngIf="!editTableSquare">{{houseSquareFootage | number}} ft&#178;</td>
                                                 <td>
-                                                        <button *ngIf="!editTableSquare" id="squareFeet" type="button" class="btn btn-info" (click)="editTableSqr()">Edit</button>
+                                                        <button *ngIf="!editTableSquare" id="squareFeet" type="button" class="btn btn-warning" (click)="editTableSqr()">Edit</button>
                                                         <button *ngIf="editTableSquare" id="squareFeet" type="button" class="btn btn-success" (click)="editTableSqrUpdate()">Update</button>
                                                 </td>
                                         </tr>
                                         <tr class="input-item">
-                                                <td>Year your home was built</td>
+                                                <td>The year your home was built</td>
 
                                                 <td *ngIf="editTableYear">
                                                         <input name="yearHouse" id="yearHouse" type="text" placeholder="Enter new year built" />
                                                 </td>
                                                 <td *ngIf="!editTableYear">{{year_built}}</td>
                                                 <td>
-                                                        <button *ngIf="!editTableYear" id="yearEdit" type="button" class="btn btn-info" (click)="editTableYr()">Edit</button>
+                                                        <button *ngIf="!editTableYear" id="yearEdit" type="button" class="btn btn-warning" (click)="editTableYr()">Edit</button>
                                                         <button *ngIf="editTableYear" id="yearEdit" type="button" class="btn btn-success" (click)="editTableYrUpdate()">Update</button>
                                                 </td>
                                         </tr>
                                         <tr class="input-item">
-                                                <td>Estimated area of solar panel array</td>
+                                                <td>The estimated area of your solar panel array</td>
                                                 <td *ngIf="editTableArea">
                                                         <input name="panelArea" id="panelArea" type="text" placeholder="Enter new panel area" />
                                                 </td>
-                                                <td *ngIf="!editTableArea">{{roofArea}}</td>
+                                                <td *ngIf="!editTableArea">{{roofArea | number}} ft&#178;</td>
                                                 <td>
-                                                        <button *ngIf="!editTableArea" id="panelEdit" type="button" class="btn btn-info" (click)="editTablePanel()">Edit</button>
+                                                        <button *ngIf="!editTableArea" id="panelEdit" type="button" class="btn btn-warning" (click)="editTablePanel()">Edit</button>
                                                         <button *ngIf="editTableArea" id="panelEdit" type="button" class="btn btn-success" (click)="editTablePanelUpdate()">Update</button>
                                                 </td>
                                         </tr>
                                         <tr class="input-item">
-                                                <td>The orientation of your roof</td>
+                                                <td>The orientation of the panels on your roof (&deg; from South)</td>
                                                 <td *ngIf="editTableAz">
                                                         <input name="azimuthTotal" id="azimuthTotal" type="text" placeholder="(-180, 180)" />
                                                 </td>
-                                                <td *ngIf="!editTableAz">{{heading}}</td>
+                                                <td *ngIf="!editTableAz">{{heading | number}}&deg;</td>
                                                 <td>
-                                                        <button *ngIf="!editTableAz" id="azimuthEdit" type="button" class="btn btn-info" (click)="editTableAzimuth()">Edit</button>
+                                                        <button *ngIf="!editTableAz" id="azimuthEdit" type="button" class="btn btn-warning" (click)="editTableAzimuth()">Edit</button>
                                                         <button *ngIf="editTableAz" id="azimuthEdit" type="button" class="btn btn-success" (click)="editTableAzimuthUpdate()">Update</button>
                                                 </td>
                                         </tr>
 
                                 </tbody>
-                        </table>                                            
-                <button *ngIf="!modelRun" (click)="postClick()" mat-flat-button color="primary">Get Cost Breakdown</button>
-                <div class="runModel">
-                <p *ngIf="modelRun">Processing...</p>
+                        </table>  
+                
+                <div class="readyToSubmit">
+                <button *ngIf="!ready" (click)="tableCheck()" mat-flat-button color="primary">These Estimates Look Good</button>
                 </div>
                 </mat-step>
         </mat-vertical-stepper>
@@ -403,53 +423,81 @@
                         </mat-step>
                 </div>
 
-                <mat-step label="Let's find the proper size of a solar array for your roof.">
-                        <div class="surfaceArea">
-                                <p>According to Google's Project Sunroof, the recommended solar panel array size for your roof is: <strong>{{recSq | number }} ft&#178;</strong></p>
-                        </div>
+                 <mat-step label="Let's find the proper size of a solar array for your roof.">
 
-
-                        <div class="sunroofImage">
-                                <small>Below, we can see the areas of your roof that will obtain the best sunlight.</small>
-                                <img class="sunroof-image" [src]="sunroofImg"/>
+                        <div *ngIf="!no" class="alert alert-light" role="alert">
+                                <p class="alert">According to <a href="https://www.google.com/get/sunroof" target="_blank">Google's Project Sunroof</a>, the optimal recommended solar panel array size for your roof is about <strong class="scrapeItem">{{recSq | number }} ft&#178;</strong>.</p>
                         </div>
 
                         <div *ngIf="!hideQuestion" class="checkUser">
-                                <p>Does that seem accurate to you?</p>
-                                <button mat-button (click)="yesConfirm()" color='primary'>Yes</button>
-                                <button mat-button (click)="noConfirm()" color='warn'>No</button>
+                                <p>Does that estimate seem okay to you?</p>
+                                <button mat-button (click)="yesConfirm()" color='primary'>Yes, next.</button>
+                                <button mat-button (click)="noConfirm()" color='warn'>No, I want to provide my own estimate.</button>
                         </div>
 
-                        <div id='mapMove'></div>
-                        <div *ngIf="no" class="manualDraw">
-                                <p>Click the "Estimate Manually" button and then draw a shape directly on your roof to estimate the surface area:</p>
-                                <button *ngIf=draw (click)="measureManually()" mat-button color='primary'>Estimate Manually</button>
-                                <button *ngIf=draw (click)="reDraw()" mat-button color='warn'>Re-draw</button>
-                                <button *ngIf=draw mat-button color='warn'>Back to Project Sunroof Estimate</button>
+                        <div *ngIf="no">
+                                <div class="sunroofImage">
+                                        <h4 class="sunroof-header">Imagery of Sunlight Exposure on Your Roof</h4>
+                                        <p>Based on 3D modeling of your home by Google Project Sunroof, we can identify the areas of your roof that obtain the most sunlight. See below for an image of your roof, and a sunlight exposure spectrum:</p>
+                                        <img class="sunroof-key" src="../assets/sun_legend2.png">
+                                        <img class="sunroof-image" [src]="sunroofImg"/>
+                                </div>
+                                <div class="instructions">
+                                <p><strong>As a reminder:</strong> placing your solar array in an area that obtains more sunlight and less tree cover can lead to more cost savings!</p> 
+                                <hr>
+
+                                <h4 class="sunroof-header">Let's Draw Our Panel Area</h4>
+                                <p>Now, below we have provided an aerial image of your roof from Google Maps. Using our interactive drawing tool, please draw a box on your roof where you expect to install your solar panel array. If you have trouble, please refer to the drawing tool instructions below.</p>
+                                <main id="logout-button-holder" class="alert alert-light">
+                                        <button mat-button color='primary' (click)="openModalSunroof()">Drawing Tool Instructions</button>
+                                        <button (click)="confirmMeasureFootage(stepper)" id="submit" mat-flat-button type="submit" class="confirmaz" [disabled]="!confirm">Confirm square footage</button>
+                                </main>
+                                </div>
+                                <div class="drawButtons alert alert-light">
+                                        <button *ngIf="!drawMode" (click)="measureManually()" mat-button color='primary'>Start Drawing</button>
+                                        <button *ngIf="drawMode" (click)="reDraw()" mat-button color='warn'>Re-draw</button>
+                                        <div class="orientation">
+                                                <button mat-button (click)="confirmMeasure()" color="primary" class="orientbtn">Find panel area</button>             
+                                                <mark class="noheading" *ngIf="!area"><p class="orientation-value">Panel Area: <strong>---.-- ft&#178;</strong></p></mark>
+                                                <mark class="heading" *ngIf="area"><p class="orientation-value">Panel Area: <strong *ngIf="area" id="square-feet">{{roofArea | number}}</strong><strong> ft&#178;</strong></p></mark>
+                                        </div>
+                                </div>
                         </div>
                         
-                        <div class="finalConfirm">
-                                <p *ngIf="!confirmSf">Estimated size of your solar array: <strong id="square-feet">{{ measureTool._area | number}}</strong><strong> ft&#178;</strong></p>
-                                <p *ngIf="confirmSf">Estimated size of your solar array: <strong id="sunroof-square-feet">{{ roofArea }}</strong><strong> ft&#178;</strong></p>
-                                <button *ngIf=draw (click)="confirmFootage(stepper)" mat-flat-button color="primary">Confirm square footage</button>
+                        <div>
+                                <div id='mapMove'></div>
+                        </div>
+
+                        <div *ngIf="no" class="backSunroof">
+                                <button *ngIf=draw (click)="backToEstimate()" mat-button color='warn'> < Back to Project Sunroof Estimate</button>
+                        </div>
+                
+                        <div *ngIf="yes" class="alert-sizeestimate alert-light">
+                                <p *ngIf="confirmSf">Estimated size of your solar array: <strong id="sunroof-square-feet">{{ roofArea }}</strong><strong class="feet"> ft&#178;</strong></p>
+                                <button (click)="confirmFootage(stepper)" class="confirmButton" mat-flat-button color="primary">Confirm square footage</button>
                         </div>
                 </mat-step>
 
                 <mat-step label="Identify the orientation of your roof.">
+                        <h4 class="sunroof-header">What Direction Will Your Panels Be Facing?</h4>
+                        <p>Another important factor is the direction your panels will face relative to due South. This will be determined by where you decide to put panels on your roof. Using our interactive drawing tool, we will determine the orientation of your roof at the location you plan to install panels.</p>
+
+                        <main id="logout-button-holder" class="alert alert-light">
+                                <button mat-button color='primary' (click)="openModal()">Drawing Tool Instructions</button>
+                                <button (click)="goForward(stepper)" id="submit" mat-flat-button type="submit" class="confirmaz" [disabled]="!confirm">Confirm orientation</button>
+                        </main>
+                        <div class="alert alert-light manualDraw">
+                                <div>
+                                <button *ngIf="!drawMode" (click)="measureManually()" mat-button color='primary'>Start Drawing</button>
+                                <button *ngIf="drawMode" (click)="reDraw()" mat-button color='light'>Re-draw</button>
+                                </div>
+                                <div class="orientation">
+                                <button mat-button (click)="calculateHeading()" color="primary" class="orientbtn">Find orientation</button>             
+                                <mark class="noheading" *ngIf="!heading"><p class="orientation-value">Orientation: <strong>--.---&deg;</strong></p></mark>
+                                <mark class="heading" *ngIf="heading"><p class="orientation-value">Orientation: <strong *ngIf="heading">{{heading | number}}&deg;</strong></p></mark>
+                                </div>
+                        </div>
                         <div id='mapMoveOrient'></div>
-                        <div class="manualDraw">
-                                <p>Find the ridge of your roof, select the "Draw" button, and draw a line with two points along the pitch:</p>
-                                <button *ngIf=draw (click)="measureTool.start()" mat-button color='primary'>Draw</button>
-                                <button *ngIf=draw (click)="measureTool.end()" mat-button color='warn'>Re-draw</button>
-                        </div>
-                        <div class="findOrient">
-                                <p>Once you've drawn a line across your roof, click the "Find orientation" button.</p>
-                                <button mat-button (click)="calculateHeading()" color="primary">Find orientation</button>
-                        </div>
-                        <div class="azimuth">
-                                <p>Estimated orientation of your roof: <strong>{{heading | number}} &deg;</strong></p>
-                        </div>
-                        <button *ngIf=confirm (click)="goForward(stepper)" mat-flat-button color="primary">Confirm orientation</button>
                 </mat-step>
                 
                 
@@ -465,68 +513,67 @@
                                 </thead>
                                 <tbody>
                                         <tr class="input-item">
-                                                <td>Home Square Footage</td>
+                                                <td>Your home square footage</td>
                                                 <td *ngIf="editTableSquare">
                                                         <input name="squareFootage" id="squareFootage" type="text" placeholder="Enter new sqr ft." />
                                                 </td>
-                                                <td *ngIf="!editTableSquare">{{houseSquareFootage}}</td>
+                                                <td *ngIf="!editTableSquare">{{houseSquareFootage | number}} ft&#178;</td>
                                                 <td>
-                                                        <button *ngIf="!editTableSquare" id="squareFeet" type="button" class="btn btn-info" (click)="editTableSqr()">Edit</button>
+                                                        <button *ngIf="!editTableSquare" id="squareFeet" type="button" class="btn btn-warning" (click)="editTableSqr()">Edit</button>
                                                         <button *ngIf="editTableSquare" id="squareFeet" type="button" class="btn btn-success" (click)="editTableSqrUpdate()">Update</button>
                                                 </td>
                                         </tr>
                                         <tr class="input-item">
-                                                <td>Year Built</td>
+                                                <td>The year your home was built</td>
 
                                                 <td *ngIf="editTableYear">
                                                         <input name="yearHouse" id="yearHouse" type="text" placeholder="Enter new year built" />
                                                 </td>
                                                 <td *ngIf="!editTableYear">{{year_built}}</td>
                                                 <td>
-                                                        <button *ngIf="!editTableYear" id="yearEdit" type="button" class="btn btn-info" (click)="editTableYr()">Edit</button>
+                                                        <button *ngIf="!editTableYear" id="yearEdit" type="button" class="btn btn-warning" (click)="editTableYr()">Edit</button>
                                                         <button *ngIf="editTableYear" id="yearEdit" type="button" class="btn btn-success" (click)="editTableYrUpdate()">Update</button>
                                                 </td>
                                         </tr>
                                         <tr class="input-item">
-                                                <td>Estimated Area of Solar Panel Array</td>
+                                                <td>The estimated area of your solar panel array</td>
                                                 <td *ngIf="editTableArea">
                                                         <input name="panelArea" id="panelArea" type="text" placeholder="Enter new panel area" />
                                                 </td>
-                                                <td *ngIf="!editTableArea">{{roofArea}}</td>
+                                                <td *ngIf="!editTableArea">{{roofArea | number}} ft&#178;</td>
                                                 <td>
-                                                        <button *ngIf="!editTableArea" id="panelEdit" type="button" class="btn btn-info" (click)="editTablePanel()">Edit</button>
+                                                        <button *ngIf="!editTableArea" id="panelEdit" type="button" class="btn btn-warning" (click)="editTablePanel()">Edit</button>
                                                         <button *ngIf="editTableArea" id="panelEdit" type="button" class="btn btn-success" (click)="editTablePanelUpdate()">Update</button>
                                                 </td>
                                         </tr>
                                         <tr class="input-item">
-                                                <td>Orientation of Roof</td>
+                                                <td>The orientation of the panels on your roof (&deg; from South)</td>
                                                 <td *ngIf="editTableAz">
                                                         <input name="azimuthTotal" id="azimuthTotal" type="text" placeholder="(-180, 180)" />
                                                 </td>
-                                                <td *ngIf="!editTableAz">{{heading}}</td>
+                                                <td *ngIf="!editTableAz">{{heading | number}}&deg;</td>
                                                 <td>
-                                                        <button *ngIf="!editTableAz" id="azimuthEdit" type="button" class="btn btn-info" (click)="editTableAzimuth()">Edit</button>
+                                                        <button *ngIf="!editTableAz" id="azimuthEdit" type="button" class="btn btn-warning" (click)="editTableAzimuth()">Edit</button>
                                                         <button *ngIf="editTableAz" id="azimuthEdit" type="button" class="btn btn-success" (click)="editTableAzimuthUpdate()">Update</button>
                                                 </td>
                                         </tr>
 
                                 </tbody>
-                        </table>                                            
-                <button *ngIf="!modelRun" (click)="postClick()" mat-flat-button color="primary">Get Cost Breakdown</button>
-                <div class="runModel">
-                <p *ngIf="modelRun">Processing...</p>
+                        </table>  
+                
+                <div class="readyToSubmit">
+                <button *ngIf="!ready" (click)="tableCheck()" mat-flat-button color="primary">These Estimates Look Good</button>
                 </div>
                 </mat-step>
         </mat-vertical-stepper>
-        <p *ngIf="postError">We're sorry, something went wrong with your submission!</p>
 </div>
 
 <div *ngIf="justRealtorDataScrape" class="stepper">
         <mat-vertical-stepper [linear]="isLinear" #stepper>
                 <!--STEP ONE-->
                 <mat-step label="Let's confirm the square footage of your home.">
-                        <div class="surfaceArea">
-                                <p>According to Realtor.com, the square footage of this home is <strong>{{houseSqFt | number }} ft&#178;</strong></p>
+                        <div class="alert alert-light" role="alert">
+                                <p class="alert">According to <a href="https://www.realtor.com/" target="_blank">Realtor.com</a>, the square footage of this home is <strong class="scrapeItem">{{houseSqFt | number }} ft&#178;</strong>.</p>
                         </div>
                         <div *ngIf="!hideQuestion" class="checkUser">
                                 <p>Does that seem accurate to you?</p>
@@ -539,7 +586,7 @@
                                 <form [formGroup]="secondFormGroup">
                                         <mat-form-field>
                                                 <div class="idk_layout">
-                                                        <input matInput formControlName="secondCtrl" placeholder="{{houseSqFt | number}}">
+                                                        <input matInput formControlName="secondCtrl" placeholder="">
                                                 </div>
                                         </mat-form-field>
                                         <div>
@@ -554,8 +601,8 @@
 
                 <!--STEP TWO-->
                 <mat-step label="Let's confirm the estimated year your home was built.">
-                        <div class="surfaceArea">
-                                <p>According to Realtor.com, your home was built in <strong>{{yearBuilt}}.</strong></p>
+                        <div class="alert alert-light" role="alert">
+                                <p class="alert">According to <a href="https://www.realtor.com/" target="_blank">Realtor.com</a>, your home was built in <strong class="scrapeItem">{{yearBuilt}}.</strong></p>
                         </div>
                         <div *ngIf="!hideQuestion" class="checkUser">
                                 <p>Does that seem accurate to you?</p>
@@ -568,7 +615,7 @@
                                 <form [formGroup]="firstFormGroup">
                                         <mat-form-field>
                                                 <div class="idk_layout">
-                                                        <input matInput placeholder="{{yearBuilt}}" formControlName="firstCtrl" required>
+                                                        <input matInput placeholder="" formControlName="firstCtrl">
                                                 </div>
                                         </mat-form-field>
                                 <div>
@@ -581,34 +628,47 @@
 
                 <mat-step label="Let's find the proper size of a solar array for your roof.">
 
-                        <div id='mapMove'></div>
-                        <div class="manualDraw">
-                                <p>Click the "Estimate Manually" button and then draw a shape directly on your roof to estimate the surface area:</p>
-                                <button *ngIf=draw (click)="measureManually()" mat-button color='primary'>Estimate Manually</button>
-                                <button *ngIf=draw (click)="reDraw()" mat-button color='warn'>Re-draw</button>
-                        </div>
+                        <h4 class="sunroof-header">Let's Draw Our Panel Area</h4>
                         
-                        <div class="finalConfirm">
-                                <p *ngIf="!confirmSf">Estimated size of your solar array: <strong id="square-feet">{{ measureTool._area | number}}</strong><strong> ft&#178;</strong></p>
-                                <button *ngIf=draw (click)="confirmFootage(stepper)" mat-flat-button color="primary">Confirm square footage</button>
+                        <p>Below we have provided an aerial image of your roof from Google Maps. Using our interactive drawing tool, please draw a box on your roof where you expect to install your solar panel array. If you have trouble, please refer to the drawing tool instructions below.</p>
+                        <main id="logout-button-holder" class="alert alert-light">
+                                <button mat-button color='primary' (click)="openModalSunroof()">Drawing Tool Instructions</button>
+                                <button (click)="confirmMeasureFootage(stepper)" id="submit" mat-flat-button type="submit" class="confirmaz" [disabled]="!confirm">Confirm square footage</button>
+                        </main>
+                
+                        <div class="drawButtons alert alert-light">
+                                <button *ngIf="!drawMode" (click)="measureManually()" mat-button color='primary'>Start Drawing</button>
+                                <button *ngIf="drawMode" (click)="reDraw()" mat-button color='warn'>Re-draw</button>
+                                <div class="orientation">
+                                        <button mat-button (click)="confirmMeasure()" color="primary" class="orientbtn">Find panel area</button>             
+                                        <mark class="noheading" *ngIf="!area"><p class="orientation-value">Panel Area: <strong>---.-- ft&#178;</strong></p></mark>
+                                        <mark class="heading" *ngIf="area"><p class="orientation-value">Panel Area: <strong *ngIf="area" id="square-feet">{{roofArea | number}}</strong><strong> ft&#178;</strong></p></mark>
+                                </div>
                         </div>
+
+                        <div id='mapMove'></div>
                 </mat-step>
 
                 <mat-step label="Identify the orientation of your roof.">
+                        <h4 class="sunroof-header">What Direction Will Your Panels Be Facing?</h4>
+                        <p>Another important factor is the direction your panels will face relative to due South. This will be determined by where you decide to put panels on your roof. Using our interactive drawing tool, we will determine the orientation of your roof at the location you plan to install panels.</p>
+
+                        <main id="logout-button-holder" class="alert alert-light">
+                                <button mat-button color='primary' (click)="openModal()">Drawing Tool Instructions</button>
+                                <button (click)="goForward(stepper)" id="submit" mat-flat-button type="submit" class="confirmaz" [disabled]="!confirm">Confirm orientation</button>
+                        </main>
+                        <div class="alert alert-light manualDraw">
+                                <div>
+                                <button *ngIf="!drawMode" (click)="measureManually()" mat-button color='primary'>Start Drawing</button>
+                                <button *ngIf="drawMode" (click)="reDraw()" mat-button color='light'>Re-draw</button>
+                                </div>
+                                <div class="orientation">
+                                <button mat-button (click)="calculateHeading()" color="primary" class="orientbtn">Find orientation</button>             
+                                <mark class="noheading" *ngIf="!heading"><p class="orientation-value">Orientation: <strong>--.---&deg;</strong></p></mark>
+                                <mark class="heading" *ngIf="heading"><p class="orientation-value">Orientation: <strong *ngIf="heading">{{heading | number}}&deg;</strong></p></mark>
+                                </div>
+                        </div>
                         <div id='mapMoveOrient'></div>
-                        <div class="manualDraw">
-                                <p>Find the ridge of your roof, select the "Draw" button, and draw a line with two points along the pitch:</p>
-                                <button *ngIf=draw (click)="measureTool.start()" mat-button color='primary'>Draw</button>
-                                <button *ngIf=draw (click)="measureTool.end()" mat-button color='warn'>Re-draw</button>
-                        </div>
-                        <div class="findOrient">
-                                <p>Once you've drawn a line across your roof, click the "Find orientation" button.</p>
-                                <button mat-button (click)="calculateHeading()" color="primary">Find orientation</button>
-                        </div>
-                        <div class="azimuth">
-                                <p>Estimated orientation of your roof: <strong>{{heading | number}} &deg;</strong></p>
-                        </div>
-                        <button *ngIf=confirm (click)="goForward(stepper)" mat-flat-button color="primary">Confirm orientation</button>
                 </mat-step>
                 
                 
@@ -624,71 +684,130 @@
                                 </thead>
                                 <tbody>
                                         <tr class="input-item">
-                                                <td>Home Square Footage</td>
+                                                <td>Your home square footage</td>
                                                 <td *ngIf="editTableSquare">
                                                         <input name="squareFootage" id="squareFootage" type="text" placeholder="Enter new sqr ft." />
                                                 </td>
-                                                <td *ngIf="!editTableSquare">{{houseSquareFootage}}</td>
+                                                <td *ngIf="!editTableSquare">{{houseSquareFootage | number}} ft&#178;</td>
                                                 <td>
-                                                        <button *ngIf="!editTableSquare" id="squareFeet" type="button" class="btn btn-info" (click)="editTableSqr()">Edit</button>
+                                                        <button *ngIf="!editTableSquare" id="squareFeet" type="button" class="btn btn-warning" (click)="editTableSqr()">Edit</button>
                                                         <button *ngIf="editTableSquare" id="squareFeet" type="button" class="btn btn-success" (click)="editTableSqrUpdate()">Update</button>
                                                 </td>
                                         </tr>
                                         <tr class="input-item">
-                                                <td>Year Built</td>
+                                                <td>The year your home was built</td>
 
                                                 <td *ngIf="editTableYear">
                                                         <input name="yearHouse" id="yearHouse" type="text" placeholder="Enter new year built" />
                                                 </td>
                                                 <td *ngIf="!editTableYear">{{year_built}}</td>
                                                 <td>
-                                                        <button *ngIf="!editTableYear" id="yearEdit" type="button" class="btn btn-info" (click)="editTableYr()">Edit</button>
+                                                        <button *ngIf="!editTableYear" id="yearEdit" type="button" class="btn btn-warning" (click)="editTableYr()">Edit</button>
                                                         <button *ngIf="editTableYear" id="yearEdit" type="button" class="btn btn-success" (click)="editTableYrUpdate()">Update</button>
                                                 </td>
                                         </tr>
                                         <tr class="input-item">
-                                                <td>Estimated Area of Solar Panel Array</td>
+                                                <td>The estimated area of your solar panel array</td>
                                                 <td *ngIf="editTableArea">
                                                         <input name="panelArea" id="panelArea" type="text" placeholder="Enter new panel area" />
                                                 </td>
-                                                <td *ngIf="!editTableArea">{{roofArea}}</td>
+                                                <td *ngIf="!editTableArea">{{roofArea | number}} ft&#178;</td>
                                                 <td>
-                                                        <button *ngIf="!editTableArea" id="panelEdit" type="button" class="btn btn-info" (click)="editTablePanel()">Edit</button>
+                                                        <button *ngIf="!editTableArea" id="panelEdit" type="button" class="btn btn-warning" (click)="editTablePanel()">Edit</button>
                                                         <button *ngIf="editTableArea" id="panelEdit" type="button" class="btn btn-success" (click)="editTablePanelUpdate()">Update</button>
                                                 </td>
                                         </tr>
                                         <tr class="input-item">
-                                                <td>Orientation of Roof</td>
+                                                <td>The orientation of the panels on your roof (&deg; from South)</td>
                                                 <td *ngIf="editTableAz">
                                                         <input name="azimuthTotal" id="azimuthTotal" type="text" placeholder="(-180, 180)" />
                                                 </td>
-                                                <td *ngIf="!editTableAz">{{heading}}</td>
+                                                <td *ngIf="!editTableAz">{{heading | number}}&deg;</td>
                                                 <td>
-                                                        <button *ngIf="!editTableAz" id="azimuthEdit" type="button" class="btn btn-info" (click)="editTableAzimuth()">Edit</button>
+                                                        <button *ngIf="!editTableAz" id="azimuthEdit" type="button" class="btn btn-warning" (click)="editTableAzimuth()">Edit</button>
                                                         <button *ngIf="editTableAz" id="azimuthEdit" type="button" class="btn btn-success" (click)="editTableAzimuthUpdate()">Update</button>
                                                 </td>
                                         </tr>
 
                                 </tbody>
-                        </table>                                            
-                <button *ngIf="!modelRun" (click)="postClick()" mat-flat-button color="primary">Get Cost Breakdown</button>
-                <div class="runModel">
-                <p *ngIf="modelRun">Processing...</p>
+                        </table>  
+                
+                <div class="readyToSubmit">
+                <button *ngIf="!ready" (click)="tableCheck()" mat-flat-button color="primary">These Estimates Look Good</button>
                 </div>
                 </mat-step>
         </mat-vertical-stepper>
-        <p *ngIf="postError">We're sorry, something went wrong with your submission!</p>
 </div>
 
-<hr>
+</div> <!--end of step System-->
+
 <div *ngIf="ready" class="weAreReady">
+
+        <table *ngIf="allValues" id="dtBasicExample" class="table table-striped table-sm" cellspacing="0" width="100%">
+                <thead>
+                        <tr>
+                        <th scope="col">Home Estimates</th>
+                        <th scope="col">Value</th>
+                        <th scope="col"></th>
+                        </tr>
+                </thead>
+                <tbody>
+                        <tr class="input-item">
+                                <td>Your home square footage</td>
+                                <td *ngIf="editTableSquare">
+                                        <input name="squareFootage" id="squareFootage" type="text" placeholder="Enter new sqr ft." />
+                                </td>
+                                <td *ngIf="!editTableSquare">{{houseSquareFootage | number}} ft&#178;</td>
+                                <td>
+                                        <button *ngIf="!editTableSquare" id="squareFeet" type="button" class="btn btn-warning" (click)="editTableSqr()">Edit</button>
+                                        <button *ngIf="editTableSquare" id="squareFeet" type="button" class="btn btn-success" (click)="editTableSqrUpdate()">Update</button>
+                                </td>
+                        </tr>
+                        <tr class="input-item">
+                                <td>The year your home was built</td>
+
+                                <td *ngIf="editTableYear">
+                                        <input name="yearHouse" id="yearHouse" type="text" placeholder="Enter new year built" />
+                                </td>
+                                <td *ngIf="!editTableYear">{{year_built}}</td>
+                                <td>
+                                        <button *ngIf="!editTableYear" id="yearEdit" type="button" class="btn btn-warning" (click)="editTableYr()">Edit</button>
+                                        <button *ngIf="editTableYear" id="yearEdit" type="button" class="btn btn-success" (click)="editTableYrUpdate()">Update</button>
+                                </td>
+                        </tr>
+                        <tr class="input-item">
+                                <td>The estimated area of your solar panel array</td>
+                                <td *ngIf="editTableArea">
+                                        <input name="panelArea" id="panelArea" type="text" placeholder="Enter new panel area" />
+                                </td>
+                                <td *ngIf="!editTableArea">{{roofArea | number}} ft&#178;</td>
+                                <td>
+                                        <button *ngIf="!editTableArea" id="panelEdit" type="button" class="btn btn-warning" (click)="editTablePanel()">Edit</button>
+                                        <button *ngIf="editTableArea" id="panelEdit" type="button" class="btn btn-success" (click)="editTablePanelUpdate()">Update</button>
+                                </td>
+                        </tr>
+                        <tr class="input-item">
+                                <td>The orientation of the panels on your roof (&deg; from South)</td>
+                                <td *ngIf="editTableAz">
+                                        <input name="azimuthTotal" id="azimuthTotal" type="text" placeholder="(-180, 180)" />
+                                </td>
+                                <td *ngIf="!editTableAz">{{heading | number}}&deg;</td>
+                                <td>
+                                        <button *ngIf="!editTableAz" id="azimuthEdit" type="button" class="btn btn-warning" (click)="editTableAzimuth()">Edit</button>
+                                        <button *ngIf="editTableAz" id="azimuthEdit" type="button" class="btn btn-success" (click)="editTableAzimuthUpdate()">Update</button>
+                                </td>
+                        </tr>
+
+                </tbody>
+        </table>  
+        <hr>
         <div *ngIf="finished">
                 <button *ngIf="!modelRun" (click)="postClick()" mat-flat-button color="primary">Re-run the Model</button>
                 <div *ngIf="modelRun" class="runModel">
                         <mat-spinner></mat-spinner>
                 </div>
         </div>
-        <div *ngIf="!finished">
+        <div *ngIf="!finished" class="readyRun">
                 <p>Great! We have all the information we need. When you are ready, let's run the model:</p>
                 <button *ngIf="!modelRun" (click)="postClick()" mat-flat-button color="primary">Run Cost Estimation Model</button>
                 <div *ngIf="modelRun" class="runModel">

@@ -3,10 +3,7 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-$theme-colors: (
-  "primary": #0074d9,
-  "danger": #ff4136
-);
+
 
 .projection {
     margin: auto !important;
@@ -18,5 +15,15 @@ $theme-colors: (
 
 td {
     vertical-align: middle !important;
+}
+
+
+/* Overwrite the styles of the mat-dialog-container element globally, but only for those
+that have an id of `modal-component` */
+/* https://stackoverflow.com/a/48689004/9263761 */
+mat-dialog-container#modal-component {
+    border: 3px solid #262626;
+    border-radius: 11px;
+    background-color: #1a1a1a;
 }
 

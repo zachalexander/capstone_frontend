@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule} from '@angular/common/http'
+import { HttpClientModule} from '@angular/common/http'
 import { CookieService } from 'ngx-cookie-service'
 
 import { AppRoutingModule } from './app-routing.module';
@@ -14,15 +14,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ReactiveFormsModule } from '@angular/forms';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-import { LinechartComponent } from './components/linechart/linechart.component';
+import { ModalComponent } from './components/modal/modal.component';
+import { ModalSunroofComponent } from './components/modal-sunroof/modal-sunroof.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AutocompleteComponent,
-    LinechartComponent
+    ModalComponent,
+    ModalSunroofComponent
   ],
   imports: [
     BrowserModule,
@@ -35,6 +38,7 @@ import { LinechartComponent } from './components/linechart/linechart.component';
     MatFormFieldModule,
     MatInputModule,
     MatTableModule,
+    MatDialogModule,
     MatProgressSpinnerModule,
     ReactiveFormsModule
   ],
@@ -45,6 +49,7 @@ import { LinechartComponent } from './components/linechart/linechart.component';
       useValue: {displayDefaultIndicatorType: false}
     }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [ModalComponent, ModalSunroofComponent]
 })
 export class AppModule { }
