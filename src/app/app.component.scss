@@ -363,6 +363,14 @@ body {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      max-width: 300px;
+      max-width: 350px;
       margin: auto;
+  }
+
+  .top-wrapper {
+      width: 700px;
+  }
+
+  .sim-context {
+      margin: 0 0 2em 0;
   }

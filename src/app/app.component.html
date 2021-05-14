@@ -815,18 +815,23 @@
                 </div>
         </div>
 </div>
-<div *ngIf="finished" class="scenarioSelector">
-<h4>Starting Costs and Panel Efficiencies</h4>
-<mat-form-field appearance="fill">
-  <mat-label>Cost and Panel Scenarios</mat-label>
-  <mat-select (selectionChange)="changeScenario($event.value)">
-    <mat-option *ngFor="let scenario of scenario" [value]="scenario.value">
-      {{scenario.scenarioView}}
-    </mat-option>
-  </mat-select>
-</mat-form-field>
+
+
+<div class="graph-wrapper">
+        <div *ngIf="finished" class="scenarioSelector">
+                <h4>Starting Costs and Panel Efficiencies</h4>
+                <small class="sim-context">Below, we created a simulation of your expected costs and savings based on the inputs you provided, as well as four different panel efficiencies and panel installation costs.</small>
+                <mat-form-field appearance="fill">
+                        <mat-label>Cost and Panel Scenarios</mat-label>
+                        <mat-select (selectionChange)="changeScenario($event.value)">
+                                <mat-option *ngFor="let scenario of scenario" [value]="scenario.value">
+                                        {{scenario.scenarioView}}
+                                </mat-option>
+                        </mat-select>
+                </mat-form-field>
+        </div>
+        <div class="top-wrapper" id="graph"></div>
 </div>
-<div class="top-wrapper"></div>
 
 
 

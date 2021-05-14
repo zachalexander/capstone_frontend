@@ -105,6 +105,7 @@ export class AppComponent implements OnInit {
   notReadyMessage = false;
 
   graphTest;
+  requestData;
 
   constructor(
     private flaskConnectService: FlaskConnectService,
@@ -159,6 +160,10 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
 
     this.initMap(); 
+
+    // KEEP FOR GRAPH TESTING 
+    // this.ready = true;
+    // this.address = '23 High St, Rensselaer, NY 12144, USA'
 
 
     this.searchFormGroup = this._formBuilder.group({
@@ -630,6 +635,16 @@ export class AppComponent implements OnInit {
         "year_built": yearBuilt
         }
 
+    // KEEP FOR GRAPHIC TESTING
+
+    // let values = {
+    //   "panel_area": 856,
+    //   "house_footage": 2343,
+    //   "address": '23 High St, Rensselaer, NY 12144, USA',
+    //   "azimuth": 0,
+    //   "year_built": 1978
+    // }
+
     this.flaskConnectService.postValues(values).subscribe(data => {
       if(!data) {
         console.log('no data inputted!')
@@ -662,10 +677,11 @@ export class AppComponent implements OnInit {
         } else {
           this.mobile = true;
         }
-
         
         this.drawGraph(width, height, data, 'I=$15k, r=0.2')
         
+        this.requestData = data;
+
         this.modelRun = false;
         this.finished = true;
       }
@@ -680,15 +696,23 @@ export class AppComponent implements OnInit {
 
     d3.selectAll("svg").remove();
 
-    const margin = { top: 20, right: 60, bottom: 20, left: 60};
+    console.log(datapull)
+
+    const margin = { top: 80, right: 100, bottom: 80, left: 100};
     height = height - margin.top - margin.bottom;
     width = width - margin.right - margin.left;
 
+     let yMax = d3.max(datapull, (d) => {return d['year']})
+
+    if(d3.max(datapull, (d)=> { return d[scenario]; }) < 0){
+      yMax = 0;
+    }
+
     const x = d3.scaleLinear().range([0, width]);
-    x.domain([0, d3.max(datapull, (d) => { return d['year']; })]);
+    x.domain([0,d3.max(datapull, (d) => {return d['year']})]);
 
     const y = d3.scaleLinear().range([height, 0]);
-    y.domain([-45000, d3.max(datapull, (d)=> { return d[scenario]; })]);
+    y.domain([-45000, yMax + 5000]);
 
     let formatValue = d3.format(",.2f")
     let formatCurrency = function(d) { return "$" + formatValue(d); };
@@ -764,6 +788,7 @@ export class AppComponent implements OnInit {
         
         let bisectDate = d3.bisector(function(d){ return (d['year']); }).left;
 
+        var left = document.getElementById("graph").offsetLeft;
         
         // Add the x-axis.
         svg.append('g')
@@ -774,9 +799,22 @@ export class AppComponent implements OnInit {
             .attr("class", "x-axis")
             .attr("transform", "translate(0," + (height) + ")")
             .call(d3.axisBottom(x).ticks(15).tickSizeOuter(0))
+
+            svg.append("text")             
+            .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top - 30) + ")")
+            .style("text-anchor", "middle")
+            .text("Number of Years After Solar Investment");
+
+            svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left + 30)
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Projected Cost ($)");   
         
 
-        svg.append('path')
+       let path = svg.append('path')
           .datum(datapull)
           .attr('class', 'line')
           .attr('fill', 'none')
@@ -785,63 +823,129 @@ export class AppComponent implements OnInit {
           .attr('d', valueline)
 
 
-        svg.append('path')
+        const totalLength = path.node().getTotalLength();
+
+        let path2 = svg.append('path')
           .datum(datapull)
           .attr('class', 'line')
           .attr('fill', 'none')
           .attr('stroke-width', '3px')
           .attr('stroke', '#C25B56')
           .attr('d', valueline2)
+
+        path.attr('stroke-dasharray', totalLength + ' ' + totalLength)
+        .attr('stroke-dashoffset', totalLength)
+        .transition()
+        .on('start', function repeat() {
+            d3.active(this)
+                .duration(1000)
+                .ease(d3.easeLinear)
+                .attr('stroke-dashoffset', 0);
+        });
+
+        path2.attr('stroke-dasharray', totalLength + ' ' + totalLength)
+        .attr('stroke-dashoffset', totalLength)
+        .transition()
+        .on('start', function repeat() {
+            d3.active(this)
+                .duration(1000)
+                .ease(d3.easeLinear)
+                .attr('stroke-dashoffset', 0);
+        });
         
 
           let focus = svg.append("g")
-          .attr('class', 'focus')                                // **********
+          .attr('class', 'focus')                           
           .style("display", "none");  
 
-          focus.append("circle")                                 // **********
-          .attr("class", "y")                                // **********
-          .style("fill", "#525564")                             // **********
+          focus.append("circle")                                 
+          .attr("class", "y")                              
+          .style("fill", "#525564")                            
           .style("stroke", "#525564")
           .style("stroke-width", 2)
           .attr("r", 3);     
         
           focus.append("text")
           .attr("x", -50)
-          .attr("dy", "-.95em");
-    
-          
-          // **********
-          svg.append("rect")                                     // **********
-              .attr("width", width)                              // **********
-              .attr("height", height)                    
-              .style("fill", "none")                             // **********
-              .style("pointer-events", "all")                    // **********
+          .attr("dy", "-.95em")
+          .attr('font-size', '0.75em')
+          .attr('font-weight', '700')
+          .attr('background-color', '#ffffff');
+              
+
+          svg.append("rect")                                   
+              .attr("width", width)                          
+              .attr("height", height + margin.top)                    
+              .style("fill", "none")                           
+              .style("pointer-events", "all")  
+              .attr('transform', 'translate(0, -20)')               
               .on("mouseover", function() { focus.style("display", null); })
               .on("mouseout", function() { focus.style("display", "none"); })
               .on("mousemove", (event, d) => {
 
-                var x0 = x.invert(d3.pointer(event,this)[0] - margin.right),
+                var x0 = x.invert(d3.pointer(event,this)[0] - margin.right - left),
                 i = bisectDate(datapull, x0, 1),
                 d0 = datapull[i - 1],
                 d1 = datapull[i],
                 d = x0 - d0['year'] > d1['year'] - x0 ? d1 : d0;
 
               focus.attr("transform", "translate(" + x(d['year']) + "," + y(d[scenario]) + ")");
-              focus.select("text").text('(Cost: ' + formatCurrency(d[scenario]) + ', Year: ' + Math.round(d['year'] * 10) / 10 + ')');
+              focus.select("text").text('(Cost: ' + formatCurrency(d[scenario]) + ',' + '\r' + 'Year: ' + Math.round(d['year'] * 10) / 10 + ')');
 
              })
-             .attr('cursor', 'crosshair');   
+             .attr('cursor', 'crosshair');
+
+             const ext_color_domain = [25, 35, 45, 55, 65];
+
+             const ls_w = 20, ls_h = 3;
+     
+             const legend = svg.append('g')
+             .data(ext_color_domain)
+             .attr('class', 'legend');
+
+             legend.append('rect')
+             .attr('x', 20)
+             .attr('y', height - 55)
+             .attr('width', ls_w)
+             .attr('height', ls_h)
+             .style('fill', function (d, i) { return '#525564'; })
+             .style('opacity', 0.8);
+
+             legend.append('text')
+             .attr('x', 45)
+             .attr('y', height - 50)
+             .attr('font-size', '10px')
+             .attr('font-weight', '500')
+             .attr('fill', '#525564')
+             .text(scenario)
+             
+             legend.append('rect')
+             .attr('x', 20)
+             .attr('y', height - 35)
+             .attr('width', ls_w)
+             .attr('height', ls_h)
+             .style('fill', function (d, i) { return '#C25B56'; })
+             .style('opacity', 0.8);
+             
+             legend.append('text')
+             .attr('x', 45)
+             .attr('y', height - 30)
+             .attr('font-size', '10px')
+             .attr('font-weight', '500')
+             .attr('fill', '#C25B56')
+             .text('Regular grid service');
                     
   }
 
   changeScenario(value){
+    console.log(value)
     this.drawGraphChange(value)
   }
 
   drawGraphChange(value){
-        const width = window.innerWidth;
+        const width = 700;
         const height = 400;
-        this.drawGraph(width, height, this.graphTest, value)
+        this.drawGraph(width, height, this.requestData, value)
   }
   
 }
