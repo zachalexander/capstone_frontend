@@ -354,3 +354,15 @@ body {
       display: flex;
       flex-direction: row;
   }
+
+  .tick line{
+    visibility:hidden;
+  }
+
+  .scenarioSelector {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 300px;
+      margin: auto;
+  }

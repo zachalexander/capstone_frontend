@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSelectModule } from '@angular/material/select';
 import { ReactiveFormsModule } from '@angular/forms';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { ModalComponent } from './components/modal/modal.component';
@@ -40,6 +41,7 @@ import { ModalSunroofComponent } from './components/modal-sunroof/modal-sunroof.
     MatTableModule,
     MatDialogModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
     ReactiveFormsModule
   ],
   providers: [

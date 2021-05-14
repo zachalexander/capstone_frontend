@@ -27,3 +27,13 @@ mat-dialog-container#modal-component {
     background-color: #1a1a1a;
 }
 
+
+.tick line{
+    visibility:hidden;
+  }
+
+  g.x-axis text, g.y-axis text {
+    color: #6c757d;
+    font-size: 1em;
+    font-family: 'Roboto', 'Arial', sans-serif;
+  }

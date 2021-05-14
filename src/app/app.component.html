@@ -815,6 +815,17 @@
                 </div>
         </div>
 </div>
+<div *ngIf="finished" class="scenarioSelector">
+<h4>Starting Costs and Panel Efficiencies</h4>
+<mat-form-field appearance="fill">
+  <mat-label>Cost and Panel Scenarios</mat-label>
+  <mat-select (selectionChange)="changeScenario($event.value)">
+    <mat-option *ngFor="let scenario of scenario" [value]="scenario.value">
+      {{scenario.scenarioView}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+</div>
 <div class="top-wrapper"></div>
 
 
