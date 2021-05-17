@@ -1,6 +1,10 @@
 body {
     max-width: 650px;
     margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: middle;
 }
 
 .title {
@@ -32,7 +36,7 @@ body {
     margin-left: 0.25em;
 }
 
-.searchDiv {
+#searchDiv {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -373,4 +377,31 @@ body {
 
   .sim-context {
       margin: 0 0 2em 0;
+  }
+
+  .error-wrapper {
+    display: flex;
+    margin: auto;
+    text-align: center;
+    justify-content: center;
+    font-weight: 700;
+
+    p {
+        font-size: 1.2em;
+        color: indianred;
+    }
+  }
+
+  .dummy-div-wrapper {
+      display: flex;
+      flex-direction: row;
+      margin: auto;
+      justify-content: center;
+  }
+
+  .button-div {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      min-width: 400px;
   }

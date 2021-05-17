@@ -11,6 +11,10 @@ import { mapToMapExpression } from '@angular/compiler/src/render3/util';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import { ModalComponent } from './components/modal/modal.component';
 import { ModalSunroofComponent } from './components/modal-sunroof/modal-sunroof.component';
+import { MAT_RIPPLE_GLOBAL_OPTIONS } from '@angular/material/core';
+import { MatPaginatorIntl } from '@angular/material/paginator';
+
+import * as dummyData from '../assets/dummy.json';
 
 
 interface Scenario {
@@ -107,6 +111,13 @@ export class AppComponent implements OnInit {
   graphTest;
   requestData;
 
+  chartError = false;
+  scrapingError = false;
+
+  dummyData = dummyData['default']
+
+  formFinished = false;
+
   constructor(
     private flaskConnectService: FlaskConnectService,
     private _formBuilder: FormBuilder,
@@ -115,8 +126,6 @@ export class AppComponent implements OnInit {
     public matDialog: MatDialog
   ) {}
 
-  animal;
-  name;
 
   scenario: Scenario[] = [
     {value: 'I=$15k, r=0.175', scenarioView: 'Initial Cost: $15,000; Panel Efficiency: 17.5%'},
@@ -125,8 +134,6 @@ export class AppComponent implements OnInit {
     {value: 'I=$25k, r=0.2', scenarioView: 'Initial Cost: $25,000; Panel Efficiency: 20.0%'}
   ];
 
-
-  
   @ViewChild('map', {static: true}) mapElement: any;
   @Output() setAddress: EventEmitter<any> = new EventEmitter();
   @ViewChild('addresstext') addresstext: any;
@@ -163,7 +170,14 @@ export class AppComponent implements OnInit {
 
     // KEEP FOR GRAPH TESTING 
     // this.ready = true;
-    // this.address = '23 High St, Rensselaer, NY 12144, USA'
+    // this.formFinished = true;
+    // this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
+    // this.tableCheck();
+
+    // this.roofArea = 265;
+    // this.houseSquareFootage = 1200;
+    // this.heading =  0;
+    // this.year_built = 1970;
 
 
     this.searchFormGroup = this._formBuilder.group({
@@ -188,7 +202,6 @@ export class AppComponent implements OnInit {
   // function to retrieve the string version of address inputed into search
   getAddress(place: object) { 
     this.address = place['formatted_address']
-    console.log(this.address)
   }
 
   // when address "search" selected, starts the postCoords function below to save address information to db
@@ -204,7 +217,6 @@ export class AppComponent implements OnInit {
         this.flaskConnectService.getScrapedData(this.address).subscribe(response => {
           if(response) {
             if(response.status == 'could not locate sunroof or realtor data!'){
-              console.log(response.status)
               console.log(response)
               this.loading = false;
               this.scraping = false;
@@ -213,7 +225,6 @@ export class AppComponent implements OnInit {
               this.justSunroofDataScrape = false;
               this.fullDataScrape = false;
             } else if (response.status == 'found realtor data but no sunroof data!') {
-              console.log(response.status)
               console.log(response)         
               this.houseSqFt = response.square_footage;
               this.yearBuilt = response.year_built;
@@ -224,7 +235,6 @@ export class AppComponent implements OnInit {
               this.justSunroofDataScrape = false;
               this.fullDataScrape = false;
             } else if (response.status == 'found sunroof data but no realtor data!') {
-              console.log(response.status)
               console.log(response)
               this.sunroofImg = this.getSafeUrl(response.screenshot);
               this.recSq = response.estimate;
@@ -235,7 +245,6 @@ export class AppComponent implements OnInit {
               this.justSunroofDataScrape = true;
               this.fullDataScrape = false;
             } else if (response.status == 'found both sunroof and realtor data!'){
-              console.log(response.status)
               console.log(response)
               this.houseSqFt = response.square_footage;
               this.yearBuilt = response.year_built;
@@ -254,11 +263,25 @@ export class AppComponent implements OnInit {
           else {
             console.log('a server error occurred, please refresh and try again.')
           }
-          })
+          }, 
+            err => {
+              this.scrapingError = true;
+              this.noDataScrape = true;
+              this.loading = false;
+              this.scraping = false;
+              console.log(err)
+            })
         } else {
           console.log('data was not scraped correctly')
         }
-      }
+      }, 
+        err => {
+          this.scrapingError = true;
+          this.noDataScrape = true;
+          this.loading = false;
+          this.scraping = false;
+          console.log(err)
+        }
     )
   }
   // in order to load the Project Sunroof image, we need to deem it safe for the browser
@@ -309,6 +332,7 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN LIVE!
 
+
     (document.getElementById("submit") as HTMLButtonElement).addEventListener(
       "click",
       () => {
@@ -318,7 +342,7 @@ export class AppComponent implements OnInit {
         this.geocodeAddress(geocoder, map, this.address);
       }
     );
-   
+  
   }
 
   initMapAddress(address, id_element): void {
@@ -442,7 +466,6 @@ export class AppComponent implements OnInit {
     this.confirmSf = false;
     this.measureTool.end();
     this.measureTool.start();
-    console.log(this.measureTool._area)
   }
 
   confirmFootage(stepper: MatStepper){
@@ -460,7 +483,6 @@ export class AppComponent implements OnInit {
   confirmMeasureFootage(stepper: MatStepper){
     stepper.next()
     this.measureTool.start();
-    console.log(this.measureTool._area)
     this.roofArea = document.getElementById('square-feet').innerHTML;
     this.initMapAddress(this.address, "mapMoveOrient")
     document.getElementById('mapMoveOrient').style.height = '400px';
@@ -474,7 +496,6 @@ export class AppComponent implements OnInit {
     } else {
       this.area = false;
     }
-    console.log(this.measureTool._area)
     this.roofArea = this.measureTool._area;
     this.confirm = true;
   }
@@ -549,7 +570,6 @@ export class AppComponent implements OnInit {
   getValues(): void {
     this.flaskConnectService.getValues().subscribe(values => {
       this.values = values
-      console.log(this.values)
     })
   }
 
@@ -604,6 +624,17 @@ export class AppComponent implements OnInit {
       this.notReadyMessage = true;
     } else {
       this.ready = true;
+      this.formFinished = true;
+      document.getElementById('search-wrapper').style.visibility = 'hidden';
+      document.getElementById('searchDiv').style.visibility = 'hidden';
+      document.getElementById('search-wrapper').style.height = '0px';
+      document.getElementById('searchDiv').style.height = '0px';
+      const width = 700;
+      const height = 400;
+      this.drawDummyGraph(width, height, this.dummyData)
+      this.postClick()
+
+
       // $element.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
     }
   }
@@ -614,9 +645,7 @@ export class AppComponent implements OnInit {
       this.roofArea = this.roofArea.replace(/,/g, '');
     }
     this.roofArea = parseInt(this.roofArea);
-    this.modelRun = true;
     this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built)
-    this.runFinalModel(this.address)
   }
 
   // function to post values to the backend database and trigger the model run
@@ -626,6 +655,8 @@ export class AppComponent implements OnInit {
     houseFootage = parseInt(houseFootage)
     azimuth = parseInt(azimuth)
     yearBuilt = parseInt(yearBuilt)
+
+    // UNCOMMENT WHEN LIVE
 
     let values = {
         "panel_area": area,
@@ -638,11 +669,11 @@ export class AppComponent implements OnInit {
     // KEEP FOR GRAPHIC TESTING
 
     // let values = {
-    //   "panel_area": 856,
-    //   "house_footage": 2343,
-    //   "address": '23 High St, Rensselaer, NY 12144, USA',
+    //   "panel_area": 265,
+    //   "house_footage": 1200,
+    //   "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
     //   "azimuth": 0,
-    //   "year_built": 1978
+    //   "year_built": 1970
     // }
 
     this.flaskConnectService.postValues(values).subscribe(data => {
@@ -656,27 +687,17 @@ export class AppComponent implements OnInit {
     this.postingValues = false;
   }
 
-  // getModelResults(){
-  //   this.modelRun = true;
-  //   this.runFinalModel(this.address)
-  // }
 
-  runFinalModel(address){
+  runFinalModel(){
+    this.modelRun = true;
     // triggering the model run and if successful, drawing our graph
-    this.flaskConnectService.runModel(address).subscribe(data => {
+    this.flaskConnectService.runModel(this.address).subscribe(data => {
       if(!data) {
         console.log('cannot run model!')
         this.postError = true;
       } else {
-  
         const width = 700;
         const height = 400;
-  
-        if (width >= 600) {
-          this.mobile = false;
-        } else {
-          this.mobile = true;
-        }
         
         this.drawGraph(width, height, data, 'I=$15k, r=0.2')
         
@@ -685,7 +706,108 @@ export class AppComponent implements OnInit {
         this.modelRun = false;
         this.finished = true;
       }
-    })
+    },
+      err => {
+        console.log(err)
+        if(err.code == 500){
+          this.chartError = true;
+          'this is a 500 error!'
+        }
+      }
+    
+    
+    )
+  }
+
+  runFinalModelRerun(){
+    this.modelRun = true;
+    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built)
+    this.runFinalModel();
+  }
+
+  drawDummyGraph(width, height, datapull){
+
+    const margin = { top: 80, right: 100, bottom: 80, left: 100};
+    height = height - margin.top - margin.bottom;
+    width = width - margin.right - margin.left;
+
+     let yMax = d3.max(datapull, (d) => {return d['year']})
+
+    if(d3.max(datapull, (d)=> { return d['I=$15k, r=0.2']; }) < 0){
+      yMax = 0;
+    }
+
+    const x = d3.scaleLinear().range([0, width]);
+    x.domain([0,d3.max(datapull, (d) => {return d['year']})]);
+
+    const y = d3.scaleLinear().range([height, 0]);
+    y.domain([-45000, yMax + 5000]);
+
+    let formatValue = d3.format(",.2f")
+    let formatCurrency = function(d) { return "$" + formatValue(d); };
+
+    const valueline = d3.line()
+    .x(function(d) { return x(d['year']); })
+    .y(function(d) { return y(d['I=$15k, r=0.2']); })
+    .curve(d3.curveMonotoneX);
+
+    const valueline2 = d3.line()
+    .x(function(d) { return x(d['year']); })
+    .y(function(d) { return y(d['Regular Grid Service']); })
+    .curve(d3.curveMonotoneX);
+
+    const svg = d3.select('.dummy-wrapper')
+                .append('svg')
+                .attr('width',  width + margin.right + margin.left)
+                .attr('height', height + margin.top + margin.bottom)
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('class', 'projection')
+                .append('g')
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .attr('class', 'graph-dummy')
+
+    // Add the x-axis.
+    svg.append('g')
+    .attr("class", "y-axis-dummy")
+        .call(d3.axisLeft(y).ticks(15).tickSizeOuter(0).tickFormat(d => (d/1000) + 'K'));
+        
+      svg.append('g')
+        .attr("class", "x-axis-dummy")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(d3.axisBottom(x).ticks(15).tickSizeOuter(0))
+
+        svg.append("text")             
+        .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top - 30) + ")")
+        .style("text-anchor", "middle")
+        .text("Number of Years After Solar Investment");
+
+        svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 30)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Projected Cost ($)");   
+    
+
+      svg.append('path')
+      .datum(datapull)
+      .attr('class', 'line')
+      .attr('fill', 'none')
+      .attr('stroke-width', '3px')
+      .attr('stroke', 'rgba(0,0,0,0.1)')
+      .attr('d', valueline)
+
+     svg.append('path')
+      .datum(datapull)
+      .attr('class', 'line')
+      .attr('fill', 'none')
+      .attr('stroke-width', '3px')
+      .attr('stroke', 'rgba(0,0,0,0.2)')
+      .attr('d', valueline2)
+
+
   }
 
 
@@ -696,13 +818,11 @@ export class AppComponent implements OnInit {
 
     d3.selectAll("svg").remove();
 
-    console.log(datapull)
-
     const margin = { top: 80, right: 100, bottom: 80, left: 100};
     height = height - margin.top - margin.bottom;
     width = width - margin.right - margin.left;
 
-     let yMax = d3.max(datapull, (d) => {return d['year']})
+     let yMax = d3.max(datapull, (d) => {return d[scenario]})
 
     if(d3.max(datapull, (d)=> { return d[scenario]; }) < 0){
       yMax = 0;
@@ -822,6 +942,15 @@ export class AppComponent implements OnInit {
           .attr('stroke', '#525564')
           .attr('d', valueline)
 
+        
+        let check = d3.selectAll("line").empty()
+        
+        if(check){
+          this.chartError = true;
+        } else {
+          this.chartError = false;
+        }
+
 
         const totalLength = path.node().getTotalLength();
 
@@ -852,33 +981,62 @@ export class AppComponent implements OnInit {
                 .ease(d3.easeLinear)
                 .attr('stroke-dashoffset', 0);
         });
+               
         
 
-          let focus = svg.append("g")
-          .attr('class', 'focus')                           
-          .style("display", "none");  
+        
+        // WORKING MOUSEOVER EFFECT (BASIC)
 
-          focus.append("circle")                                 
-          .attr("class", "y")                              
-          .style("fill", "#525564")                            
-          .style("stroke", "#525564")
-          .style("stroke-width", 2)
-          .attr("r", 3);     
+        let focus = svg.append("g")
+        .attr('class', 'focus')                           
+        .style("display", "none");  
+
+        focus.append("line")
+        .attr("class", "x")
+        .style("stroke", "#525564")
+        .style("stroke-dasharray", "3,3")
+        .style("opacity", 0.5)
+        .attr("y1", 0)
+        .attr("y2", height);
+
+        // append the y line
+        focus.append("line")
+            .attr("class", "y")
+            .style("stroke", "#525564")
+            .style("stroke-dasharray", "3,3")
+            .style("opacity", 0.5)
+            .attr("x1", 0)
+            .attr("x2", width);
+        
+        focus.append("circle")                                 
+        .attr("class", "y")                              
+        .style("fill", "#525564")                            
+        .style("stroke", "#525564")
+        .style("stroke-width", 2)
+        .attr("r", 3);  
+          
+          focus.append('rect')
+          .attr('width', "150px")
+          .attr('height', '20px')
+          .style("fill", 'rgba(255,255,255,0.8)')
+          .style("pointer-events", "all")  
+          .attr('transform', 'translate(-60, -25)')  
+          .attr('padding', '0.25em')             
+          .attr('cursor', 'crosshair');
         
           focus.append("text")
           .attr("x", -50)
           .attr("dy", "-.95em")
           .attr('font-size', '0.75em')
           .attr('font-weight', '700')
-          .attr('background-color', '#ffffff');
+          .attr('fill', '#525564')
               
 
           svg.append("rect")                                   
               .attr("width", width)                          
-              .attr("height", height + margin.top)                    
+              .attr("height", height)                    
               .style("fill", "none")                           
-              .style("pointer-events", "all")  
-              .attr('transform', 'translate(0, -20)')               
+              .style("pointer-events", "all")             
               .on("mouseover", function() { focus.style("display", null); })
               .on("mouseout", function() { focus.style("display", "none"); })
               .on("mousemove", (event, d) => {
@@ -890,7 +1048,14 @@ export class AppComponent implements OnInit {
                 d = x0 - d0['year'] > d1['year'] - x0 ? d1 : d0;
 
               focus.attr("transform", "translate(" + x(d['year']) + "," + y(d[scenario]) + ")");
-              focus.select("text").text('(Cost: ' + formatCurrency(d[scenario]) + ',' + '\r' + 'Year: ' + Math.round(d['year'] * 10) / 10 + ')');
+              focus.select("text").text('(Cost: ' + formatCurrency(d[scenario]) + ',' + ' Year: ' + Math.round(d['year'] * 10) / 10 + ')');
+        
+              focus.select(".x")
+              .attr("y2", height - y(d[scenario]))
+      
+              focus.select(".y")
+                  .attr("transform", "translate(" + (width * -1) + ",0)")
+                  .attr("x2", (width + width));
 
              })
              .attr('cursor', 'crosshair');
@@ -938,7 +1103,6 @@ export class AppComponent implements OnInit {
   }
 
   changeScenario(value){
-    console.log(value)
     this.drawGraphChange(value)
   }
 
@@ -946,6 +1110,10 @@ export class AppComponent implements OnInit {
         const width = 700;
         const height = 400;
         this.drawGraph(width, height, this.requestData, value)
+  }
+
+  restartInputs(){
+    window.location.reload();
   }
   
 }

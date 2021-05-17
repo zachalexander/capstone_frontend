@@ -41,3 +41,18 @@ mat-dialog-container#modal-component {
 .x-axis path, .y-axis path {
     stroke: #6c757d
 }
+
+g.x-axis-dummy text, g.y-axis-dummy text {
+    color: #ddd;
+    font-size: 1em;
+    font-family: 'Roboto', 'Arial', sans-serif;
+}
+
+.x-axis-dummy path, .y-axis-dummy path {
+    stroke: #ddd;
+}
+
+g.graph-dummy text {
+    fill: #ccc;
+
+}
