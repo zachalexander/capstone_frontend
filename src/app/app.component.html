@@ -1,25 +1,25 @@
-<div class="title">
-        <h1>Long-term financial projection of installing solar <br> panels on your home in Albany, NY</h1>
+<div class="top" *ngIf="!ready">
+        <div class="title">
+                <h1>Long-term financial projection of installing solar <br> panels on your home in Albany, NY</h1>
+        </div>
+        
+        <div class="intro">
+                <small>
+                        Solar panel arrays are often marketed by the number of kW they can 
+                        produce. This number is actually what the system would produce assuming 
+                        they receive full sunlight for at least 8 hours in a day. In reality the 
+                        amount of kW they produce depends largely on the sunlight your rooftop is 
+                        exposed to. The following calculator is meant to take into account the sunlight in your 
+                        area and provide estimates of certain panel system sizes (since you are often 
+                        limited by the size of your roof) as well as their efficiencies.
+                </small>
+                <br>
+                <br>
+                <small>
+                        In order for us to get a good estimate of cost savings, we'll first need you to enter your address below:
+                </small>
+        </div>
 </div>
-
-<div class="intro">
-        <small>
-                Solar panel arrays are often marketed by the number of kW they can 
-                produce. This number is actually what the system would produce assuming 
-                they receive full sunlight for at least 8 hours in a day. In reality the 
-                amount of kW they produce depends largely on the sunlight your rooftop is 
-                exposed to. The following calculator is meant to take into account the sunlight in your 
-                area and provide estimates of certain panel system sizes (since you are often 
-                limited by the size of your roof) as well as their efficiencies.
-        </small>
-        <br>
-        <br>
-        <small>
-                In order for us to get a good estimate of cost savings, we'll first need you to enter your address below:
-        </small>
-</div>
-
-
 <div id="search-wrapper">
 
         <div id="searchDiv">
@@ -34,6 +34,8 @@
         </div>
 </div>
         
+
+
         
 <div id='map' style="width:0%;height:0px;visibility:hidden"></div>
 
@@ -96,6 +98,24 @@
                                         </form>
                                 </mat-step>
                         </div>
+
+
+     
+                        <mat-step [stepControl]="thirdFormGroup" label="Please provide the number of members that live in your household:">
+                                <form [formGroup]="thirdFormGroup">
+                                        <mat-form-field>
+                                                <div class="idk_layout">
+                                                        <input matInput placeholder="" formControlName="thirdCtrl">
+                                                </div>
+                                        </mat-form-field>
+                                <div>
+                                <button mat-button matStepperPrevious>Back</button>
+                                <button mat-button matStepperNext (click)="householdMemberSubmit()">Next</button>
+                                </div>
+                                </form>
+                        </mat-step>
+        
+
 
                         <mat-step label="Let's find the proper size of a solar array for your roof.">
 
@@ -210,6 +230,18 @@
                                                         </td>
                                                 </tr>
                                                 <tr class="input-item">
+                                                        <td>Number of household members</td>
+
+                                                        <td *ngIf="editTableMembers">
+                                                                <input name="membersHouse" id="membersHouse" type="text" placeholder="Enter new member count" />
+                                                        </td>
+                                                        <td *ngIf="!editTableMembers">{{household_members}}</td>
+                                                        <td>
+                                                                <button *ngIf="!editTableMembers" id="membersEdit" type="button" class="btn btn-warning" (click)="editTableMemb()">Edit</button>
+                                                                <button *ngIf="editTableMembers" id="membersEdit" type="button" class="btn btn-success" (click)="editTableMembUpdate()">Update</button>
+                                                        </td>
+                                                </tr>
+                                                <tr class="input-item">
                                                         <td>The estimated area of your solar panel array</td>
                                                         <td *ngIf="editTableArea">
                                                                 <input name="panelArea" id="panelArea" type="text" placeholder="Enter new panel area" />
@@ -279,6 +311,20 @@
                                         </form>
                                 </mat-step>
                         </div>
+
+                        <mat-step [stepControl]="thirdFormGroup" label="Please provide the number of members that live in your household:">
+                                <form [formGroup]="thirdFormGroup">
+                                        <mat-form-field>
+                                                <div class="idk_layout">
+                                                        <input matInput placeholder="" formControlName="thirdCtrl">
+                                                </div>
+                                        </mat-form-field>
+                                <div>
+                                <button mat-button matStepperPrevious>Back</button>
+                                <button mat-button matStepperNext (click)="householdMemberSubmit()">Next</button>
+                                </div>
+                                </form>
+                        </mat-step>
 
                         <mat-step label="Let's find the proper size of a solar array for your roof.">
 
@@ -361,6 +407,18 @@
                                                         </td>
                                                 </tr>
                                                 <tr class="input-item">
+                                                        <td>Number of household members</td>
+
+                                                        <td *ngIf="editTableMembers">
+                                                                <input name="membersHouse" id="membersHouse" type="text" placeholder="Enter new member count" />
+                                                        </td>
+                                                        <td *ngIf="!editTableMembers">{{household_members}}</td>
+                                                        <td>
+                                                                <button *ngIf="!editTableMembers" id="membersEdit" type="button" class="btn btn-warning" (click)="editTableMemb()">Edit</button>
+                                                                <button *ngIf="editTableMembers" id="membersEdit" type="button" class="btn btn-success" (click)="editTableMembUpdate()">Update</button>
+                                                        </td>
+                                                </tr>
+                                                <tr class="input-item">
                                                         <td>The estimated area of your solar panel array</td>
                                                         <td *ngIf="editTableArea">
                                                                 <input name="panelArea" id="panelArea" type="text" placeholder="Enter new panel area" />
@@ -430,6 +488,20 @@
                                         </form>
                                 </mat-step>
                         </div>
+
+                        <mat-step [stepControl]="thirdFormGroup" label="Please provide the number of members that live in your household:">
+                                <form [formGroup]="thirdFormGroup">
+                                        <mat-form-field>
+                                                <div class="idk_layout">
+                                                        <input matInput placeholder="" formControlName="thirdCtrl">
+                                                </div>
+                                        </mat-form-field>
+                                <div>
+                                <button mat-button matStepperPrevious>Back</button>
+                                <button mat-button matStepperNext (click)="householdMemberSubmit()">Next</button>
+                                </div>
+                                </form>
+                        </mat-step>
 
                                 <mat-step label="Let's find the proper size of a solar array for your roof.">
 
@@ -544,6 +616,18 @@
                                                         </td>
                                                 </tr>
                                                 <tr class="input-item">
+                                                        <td>Number of household members</td>
+
+                                                        <td *ngIf="editTableMembers">
+                                                                <input name="membersHouse" id="membersHouse" type="text" placeholder="Enter new member count" />
+                                                        </td>
+                                                        <td *ngIf="!editTableMembers">{{household_members}}</td>
+                                                        <td>
+                                                                <button *ngIf="!editTableMembers" id="membersEdit" type="button" class="btn btn-warning" (click)="editTableMemb()">Edit</button>
+                                                                <button *ngIf="editTableMembers" id="membersEdit" type="button" class="btn btn-success" (click)="editTableMembUpdate()">Update</button>
+                                                        </td>
+                                                </tr>
+                                                <tr class="input-item">
                                                         <td>The estimated area of your solar panel array</td>
                                                         <td *ngIf="editTableArea">
                                                                 <input name="panelArea" id="panelArea" type="text" placeholder="Enter new panel area" />
@@ -634,6 +718,20 @@
                                 </mat-step>
                         </div>
 
+                        <mat-step [stepControl]="thirdFormGroup" label="Please provide the number of members that live in your household:">
+                                <form [formGroup]="thirdFormGroup">
+                                        <mat-form-field>
+                                                <div class="idk_layout">
+                                                        <input matInput placeholder="" formControlName="thirdCtrl">
+                                                </div>
+                                        </mat-form-field>
+                                <div>
+                                <button mat-button matStepperPrevious>Back</button>
+                                <button mat-button matStepperNext (click)="householdMemberSubmit()">Next</button>
+                                </div>
+                                </form>
+                        </mat-step>
+
                         <mat-step label="Let's find the proper size of a solar array for your roof.">
 
                                 <h4 class="sunroof-header">Let's Draw Our Panel Area</h4>
@@ -715,6 +813,18 @@
                                                         </td>
                                                 </tr>
                                                 <tr class="input-item">
+                                                        <td>Number of household members</td>
+
+                                                        <td *ngIf="editTableMembers">
+                                                                <input name="membersHouse" id="membersHouse" type="text" placeholder="Enter new member count" />
+                                                        </td>
+                                                        <td *ngIf="!editTableMembers">{{household_members}}</td>
+                                                        <td>
+                                                                <button *ngIf="!editTableMembers" id="membersEdit" type="button" class="btn btn-warning" (click)="editTableMemb()">Edit</button>
+                                                                <button *ngIf="editTableMembers" id="membersEdit" type="button" class="btn btn-success" (click)="editTableMembUpdate()">Update</button>
+                                                        </td>
+                                                </tr>
+                                                <tr class="input-item">
                                                         <td>The estimated area of your solar panel array</td>
                                                         <td *ngIf="editTableArea">
                                                                 <input name="panelArea" id="panelArea" type="text" placeholder="Enter new panel area" />
@@ -753,6 +863,7 @@
 
 <div *ngIf="formFinished" class="runVisualizations">
         <div *ngIf="ready" class="weAreReady">
+                <h3>Solar Panel Home Inputs for <strong>{{address}}</strong></h3>
         
                 <table *ngIf="allValues" id="dtBasicExample" class="table table-striped table-sm" cellspacing="0" width="100%">
                         <thead>
@@ -784,6 +895,18 @@
                                         <td>
                                                 <button *ngIf="!editTableYear" id="yearEdit" type="button" class="btn btn-warning" (click)="editTableYr()">Edit</button>
                                                 <button *ngIf="editTableYear" id="yearEdit" type="button" class="btn btn-success" (click)="editTableYrUpdate()">Update</button>
+                                        </td>
+                                </tr>
+                                <tr class="input-item">
+                                        <td>Number of household members</td>
+
+                                        <td *ngIf="editTableMembers">
+                                                <input name="membersHouse" id="membersHouse" type="text" placeholder="Enter new member count" />
+                                        </td>
+                                        <td *ngIf="!editTableMembers">{{household_members}}</td>
+                                        <td>
+                                                <button *ngIf="!editTableMembers" id="membersEdit" type="button" class="btn btn-warning" (click)="editTableMemb()">Edit</button>
+                                                <button *ngIf="editTableMembers" id="membersEdit" type="button" class="btn btn-success" (click)="editTableMembUpdate()">Update</button>
                                         </td>
                                 </tr>
                                 <tr class="input-item">
@@ -851,6 +974,11 @@
 
 <div *ngIf="chartError" class="error-wrapper">
         <p>Data could not be loaded properly.</p>
+</div> 
+
+<div *ngIf="finished" class="summary">
+        <p>According to our model, given your home characteristics, you'd <strong>likely break even</strong> on your initial solar panel investment <strong>{{breakEvenLow}} to {{breakEvenHigh}} years</strong> following your installation.</p>
+
 </div>
 
 

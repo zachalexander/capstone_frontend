@@ -228,7 +228,7 @@ body {
 
   }
 
-  #azimuthEdit, #panelEdit, #yearEdit, #squareFeet {
+  #azimuthEdit, #panelEdit, #yearEdit, #squareFeet, #membersEdit {
       font-size: 0.75em;
       font-weight: 700;
   }
@@ -404,4 +404,11 @@ body {
       flex-direction: row;
       justify-content: space-between;
       min-width: 400px;
+  }
+
+  .summary {
+    display: flex;
+    justify-content: center;
+    max-width: 600px;
+    margin: auto;
   }

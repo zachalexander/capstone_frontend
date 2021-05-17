@@ -37,6 +37,7 @@ export class AppComponent implements OnInit {
   firstFormGroup: FormGroup;
   secondFormGroup: FormGroup;
   initialFormGroup: FormGroup;
+  thirdFormGroup: FormGroup;
   isEditable = false;
   confirm = false;
   mobile;
@@ -73,6 +74,7 @@ export class AppComponent implements OnInit {
   loading = false;
   houseSqFt;
   yearBuilt;
+  household_members;
 
   fullDataScrape = false;
   noDataScrape = false;
@@ -94,6 +96,7 @@ export class AppComponent implements OnInit {
   editTableYear = false;
   editTableArea = false;
   editTableAz = false;
+  editTableMembers = false;
 
   panel_area;
 
@@ -117,6 +120,9 @@ export class AppComponent implements OnInit {
   dummyData = dummyData['default']
 
   formFinished = false;
+
+  breakEvenHigh;
+  breakEvenLow;
 
   constructor(
     private flaskConnectService: FlaskConnectService,
@@ -174,10 +180,10 @@ export class AppComponent implements OnInit {
     // this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
     // this.tableCheck();
 
-    // this.roofArea = 265;
+    // this.roofArea = 595;
     // this.houseSquareFootage = 1200;
     // this.heading =  0;
-    // this.year_built = 1970;
+    // this.year_built = 2001;
 
 
     this.searchFormGroup = this._formBuilder.group({
@@ -196,6 +202,9 @@ export class AppComponent implements OnInit {
     });
     this.initialFormGroup = this._formBuilder.group({
       initialCtrl: ['', Validators.required]
+    });
+    this.thirdFormGroup = this._formBuilder.group({
+     thirdCtrl: ['', Validators.required]
     });
   }
 
@@ -462,6 +471,11 @@ export class AppComponent implements OnInit {
     this.year_built = this.year_built.firstCtrl;
   }
 
+  householdMemberSubmit(){
+    this.household_members = this.thirdFormGroup.value;
+    this.household_members = this.household_members.thirdCtrl;
+  }
+
   reDraw() {
     this.confirmSf = false;
     this.measureTool.end();
@@ -593,9 +607,19 @@ export class AppComponent implements OnInit {
   }
 
   editTableYrUpdate(){
-    this.editTableYear = false;
+    this.editTableMembers = false;
     let yearbuilt = (<HTMLInputElement>document.getElementById("yearHouse")).value
     this.year_built = yearbuilt
+  }
+
+  editTableMemb(){
+    this.editTableMembers = true;
+  }
+
+  editTableMembUpdate(){
+    this.editTableMembers = false;
+    let householdmem = (<HTMLInputElement>document.getElementById("membersHouse")).value
+    this.household_members = householdmem
   }
 
   editTablePanel(){
@@ -619,7 +643,7 @@ export class AppComponent implements OnInit {
   }
 
   tableCheck(): void {
-    if(this.roofArea == "" || this.houseSquareFootage == "" || this.heading == "" || this.year_built == ""){
+    if(this.roofArea == "" || this.houseSquareFootage == "" || this.heading == "" || this.year_built == "" || this.household_members == ""){
       this.ready = false;
       this.notReadyMessage = true;
     } else {
@@ -645,16 +669,17 @@ export class AppComponent implements OnInit {
       this.roofArea = this.roofArea.replace(/,/g, '');
     }
     this.roofArea = parseInt(this.roofArea);
-    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built)
+    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members)
   }
 
   // function to post values to the backend database and trigger the model run
-  postValues(area, houseFootage, address, azimuth, yearBuilt): void {
+  postValues(area, houseFootage, address, azimuth, yearBuilt, householdMembers): void {
 
     area = parseInt(area);
     houseFootage = parseInt(houseFootage)
     azimuth = parseInt(azimuth)
     yearBuilt = parseInt(yearBuilt)
+    householdMembers = parseInt(householdMembers)
 
     // UNCOMMENT WHEN LIVE
 
@@ -663,17 +688,19 @@ export class AppComponent implements OnInit {
         "house_footage": houseFootage,
         "address": address,
         "azimuth": azimuth,
-        "year_built": yearBuilt
+        "year_built": yearBuilt,
+        "household_members": householdMembers
         }
 
     // KEEP FOR GRAPHIC TESTING
 
     // let values = {
-    //   "panel_area": 265,
+    //   "panel_area": 595,
     //   "house_footage": 1200,
     //   "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
     //   "azimuth": 0,
-    //   "year_built": 1970
+    //   "year_built": 2000,
+    //   "household_members": 3
     // }
 
     this.flaskConnectService.postValues(values).subscribe(data => {
@@ -698,6 +725,9 @@ export class AppComponent implements OnInit {
       } else {
         const width = 700;
         const height = 400;
+
+        this.breakEvenHigh = data['high']
+        this.breakEvenLow = data['low']
         
         this.drawGraph(width, height, data, 'I=$15k, r=0.2')
         
@@ -709,9 +739,10 @@ export class AppComponent implements OnInit {
     },
       err => {
         console.log(err)
+        this.chartError = true;
         if(err.code == 500){
           this.chartError = true;
-          'this is a 500 error!'
+          console.log('this is a 500 error!')
         }
       }
     
@@ -721,7 +752,7 @@ export class AppComponent implements OnInit {
 
   runFinalModelRerun(){
     this.modelRun = true;
-    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built)
+    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members)
     this.runFinalModel();
   }
 
@@ -818,6 +849,14 @@ export class AppComponent implements OnInit {
 
     d3.selectAll("svg").remove();
 
+    console.log(datapull)
+    
+    let break_even_hi = datapull['high']
+    let break_even_lo = datapull['low']
+
+    datapull = datapull['model_data']
+
+
     const margin = { top: 80, right: 100, bottom: 80, left: 100};
     height = height - margin.top - margin.bottom;
     width = width - margin.right - margin.left;
@@ -869,13 +908,13 @@ export class AppComponent implements OnInit {
               //   .attr('stroke', '#000000')
               //   .attr('stroke-width', 1);
 
-        // svg.append("rect")
-        //   .attr("x", x(highlow[0] * 12))
-        //   .attr("y", margin.top + 10)
-        //   .attr("width", (x(highlow[1] * 12)) - (x(highlow[0] * 12)))
-        //   .attr("height", yheight + 10)
-        //   .style("fill", "url(#diagonalHatch)")
-        //   .style("fill-opacity", 0.2)
+        svg.append("rect")
+          .attr("x", x(break_even_lo))
+          .attr("y", 0)
+          .attr("width", (x(break_even_hi)) - (x(break_even_lo)))
+          .attr("height", height)
+          .style("fill", "#e5efde")
+          .style("fill-opacity", 0.4)
 
         // svg.append("text")
         //   .attr("x", (x(highlow[0] * 12) - 30))
@@ -891,12 +930,12 @@ export class AppComponent implements OnInit {
         //   .attr("font-size", "0.75em")
         //   .attr("font-weight", "700");
 
-        // svg.append("text")
-        //   .attr("x", (x(highlow[1] * 12) - 30))
-        //   .attr("y", yheight / 4)
-        //   .text('Likely break even')
-        //   .attr("font-size", "0.75em")
-        //   .attr("font-weight", "700");
+        svg.append("text")
+          .attr("x", (x((break_even_lo + break_even_hi)/2) - 55))
+          .attr("y", height / 9)
+          .text('Likely break even range')
+          .attr("font-size", "0.75em")
+          .attr("fill", "#9cb19c");
         
         // svg.append("text")
         //   .attr("x", (x(highlow[1] * 12) - 20))
