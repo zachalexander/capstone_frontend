@@ -20,6 +20,7 @@
                 </small>
         </div>
 </div>
+
 <div id="search-wrapper">
 
         <div id="searchDiv">
@@ -33,9 +34,6 @@
                 <p *ngIf="scrapingError">We're sorry, but something went wrong while gathering data from third party sources. Please enter in data manually below.</p>
         </div>
 </div>
-        
-
-
         
 <div id='map' style="width:0%;height:0px;visibility:hidden"></div>
 
@@ -860,7 +858,6 @@
         </div> <!--end of step System-->
 </div>
 
-
 <div *ngIf="formFinished" class="runVisualizations">
         <div *ngIf="ready" class="weAreReady">
                 <h3>Solar Panel Home Inputs for <strong>{{address}}</strong></h3>
@@ -952,49 +949,65 @@
         </div>
         
 </div>
+
 <div class="dummy-div-wrapper">
         <div class="dummy-wrapper"></div>
 </div>
 
 <div *ngIf="!chartError" class="graph-wrapper">
-        <div *ngIf="finished" class="scenarioSelector">
-                <h4>Starting Costs and Panel Efficiencies</h4>
-                <small class="sim-context">Below, we created a simulation of your expected costs and savings based on the inputs you provided, as well as two different panel efficiencies and panel installation costs.</small>
-                <mat-form-field appearance="fill">
-                        <mat-label>Cost and Panel Scenarios</mat-label>
-                        <mat-select (selectionChange)="changeScenario($event.value)">
-                                <mat-option *ngFor="let scenario of scenario" [value]="scenario.value">
-                                        {{scenario.scenarioView}}
-                                </mat-option>
-                        </mat-select>
-                </mat-form-field>
-        </div>
         <div class="first-row-visuals">
-                <h3>Solar Summary</h3>
-                <div class="d3-viz-context-1" id="graph-left">
-                        <div *ngIf="finished" class="summary">
-                                <p>According to our model, after an initial solar installation cost of {{installationCost}}, you'd <strong>likely break even</strong> on your initial solar panel investment <strong>{{breakEvenLow}} to {{breakEvenHigh}} years</strong> following your installation.</p>
-                        </div>
-                </div>
-                <div class="d3-viz-row-1">
-                        <div class="top-wrapper" id="graph"></div>
-                        <div class="bar">
-                                <div class="bar-wrapper" id="bar-graph"></div>
-                        </div>
-                </div>
+                <mat-card>
+                        <mat-card-header>
+                                <div *ngIf="finished" class="scenarioSelector">
+                                        <h4>Starting Costs and Panel Efficiencies</h4>
+                                        <small class="sim-context">Below, we created a simulation of your expected costs and savings based on the inputs you provided, as well as two different panel efficiencies and panel installation costs.</small>
+                                        <mat-form-field appearance="fill">
+                                                <mat-label>Cost and Panel Scenarios</mat-label>
+                                                <mat-select (selectionChange)="changeScenario($event.value)">
+                                                        <mat-option *ngFor="let scenario of scenario" [value]="scenario.value">
+                                                                {{scenario.scenarioView}}
+                                                        </mat-option>
+                                                </mat-select>
+                                        </mat-form-field>
+                                </div>
+                        </mat-card-header>
+                        <mat-card-content>    
+                                <div class="breakeven-wrapper">
+                                        <div class="top-wrapper" id="graph"></div>
+                        
+                                        <div class="bar">
+                                                <div class="bar-wrapper" id="bar-graph"></div>
+                                        </div>
+                                </div>           
+                                <!-- <p>According to our model, after an initial solar installation cost of {{installationCost}}, you'd <strong>likely break even</strong> on your initial solar panel investment <strong>{{breakEvenLow}} to {{breakEvenHigh}} years</strong> following your installation.</p> -->
+                        </mat-card-content>
+                </mat-card>
+        </div>
+        <div class="second-row-visuals">
+                <mat-card>
+                        <mat-card-content>
+                                <div class="d3-viz-row-2">
+                                        <div class="energy-wrapper">
+                                                <div class="bar">
+                                                        <div class="bar-energy-wrapper" id="bar-energy-graph"></div>
+                                                </div>
+                                                <p class="yields-context">Based on the projected energy yields by both our high and low efficiency solar panel percentages, these are the average monthly energy yields over the 15-year simulation period. For comparison, we also show the estimated energy usage for your specific home based on the square footage and number of household members you entered.</p>
+                                        </div>
+                                        <div class="sixty-accrue">
+                                                <p>According to our projections, you would likely accrue back 60% of your initial solar panel investment in:</p>
+                                                <div class="num-container">
+                                                        <p class="big-num">{{breakEvenLowViz}}</p> <p class="smaller-text"> to </p><p class="big-num">{{breakEvenHighViz}}</p> <p class="smaller-text">years.</p>
+                                                </div>
+                                                <p class="weighing-costs"><strong>Why is this important? </strong>When weighing the costs of investing in solar, many homeowners like to factor in the length of time they'll likely live in their current home. By knowing when a large portion of your initial investment will be recouped, you can better plan around the upfront costs, and whether the investment is advantageous for you.</p>
+                                        </div>
+                                </div>
+                        </mat-card-content>
+                </mat-card>
         </div>
 </div>
 
 <div *ngIf="chartError" class="error-wrapper">
         <p>Data could not be loaded properly.</p>
 </div> 
-
-
-
-
-
-
-
-
 
 <router-outlet></router-outlet>

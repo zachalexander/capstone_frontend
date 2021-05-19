@@ -433,10 +433,66 @@ body {
       }
   }
 
-  .d3-viz-row-1, .d3-viz-context-1 {
+  .breakeven-wrapper {
       display: flex;
       flex-direction: row;
       margin: 0 auto;
+      padding: 3em;
+  }
+
+  .energy-wrapper {
+      max-width: 50%;
+      margin: auto;
+      padding: 2em;
+  }
+
+  .d3-viz-row-2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+ 
+
+  .num-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 90%;
+    margin: auto;
+    min-height: 280px;
+    text-align: center;
+    vertical-align: middle;
+    align-items: center;
   }
 
 
+
+  .sixty-accrue {
+      padding: 5em;
+
+      p {
+          text-align: center;
+          font-size: 1.25em;
+          line-height: 1.75em;
+      }
+
+      .smaller-text {
+        font-size: 3em;
+        color: #003f5c;
+    }
+
+    .big-num {
+        font-size: 12em;
+        color: #003f5c;
+    }
+
+    .weighing-costs {
+        text-align: left;
+        font-size: 0.95em;
+    }
+  }
+
+  .yields-context {
+      font-size: 0.85em;
+  }

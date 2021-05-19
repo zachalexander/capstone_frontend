@@ -128,6 +128,9 @@ export class AppComponent implements OnInit {
 
   installationCost;
 
+  breakEvenLowViz;
+  breakEvenHighViz;
+
   constructor(
     private flaskConnectService: FlaskConnectService,
     private _formBuilder: FormBuilder,
@@ -138,10 +141,10 @@ export class AppComponent implements OnInit {
 
 
   scenario: Scenario[] = [
-    {value: 'I=$12k, r=0.175', scenarioView: 'Initial Cost: $12,000; Panel Efficiency: 17.5%'},
-    {value: 'I=$12k, r=0.2', scenarioView: 'Initial Cost: $12,000; Panel Efficiency: 20.0%'},
-    {value: 'I=$20k, r=0.175', scenarioView: 'Initial Cost: $20,000; Panel Efficiency: 17.5%'},
-    {value: 'I=$20k, r=0.2', scenarioView: 'Initial Cost: $20,000; Panel Efficiency: 20.0%'}
+    {value: 'I=$12k, r=0.15', scenarioView: 'Initial Cost: $12,000; Panel Efficiency: 15.0%'},
+    {value: 'I=$12k, r=0.19', scenarioView: 'Initial Cost: $12,000; Panel Efficiency: 19.0%'},
+    {value: 'I=$20k, r=0.15', scenarioView: 'Initial Cost: $20,000; Panel Efficiency: 15.0%'},
+    {value: 'I=$20k, r=0.19', scenarioView: 'Initial Cost: $20,000; Panel Efficiency: 19.0%'}
   ];
 
   @ViewChild('map', {static: true}) mapElement: any;
@@ -179,15 +182,15 @@ export class AppComponent implements OnInit {
     this.initMap(); 
 
     // KEEP FOR GRAPH TESTING 
-    this.ready = true;
-    this.formFinished = true;
-    this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
-    this.tableCheck();
+    // this.ready = true;
+    // this.formFinished = true;
+    // this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
+    // this.tableCheck();
 
-    this.roofArea = 595;
-    this.houseSquareFootage = 1200;
-    this.heading =  0;
-    this.year_built = 2001;
+    // this.roofArea = 595;
+    // this.houseSquareFootage = 1200;
+    // this.heading =  0;
+    // this.year_built = 2001;
 
 
     this.searchFormGroup = this._formBuilder.group({
@@ -341,20 +344,20 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN TESTING!
 
-    this.geocodeAddress(geocoder, map, this.address)
+    // this.geocodeAddress(geocoder, map, this.address)
 
     // UNCOMMENT WHEN LIVE!
 
 
-    // (document.getElementById("submit") as HTMLButtonElement).addEventListener(
-    //   "click",
-    //   () => {
-    //     this.scraping = true;
-    //     this.scrapeSunroof = true;
-    //     this.loading = true;
-    //     this.geocodeAddress(geocoder, map, this.address);
-    //   }
-    // );
+    (document.getElementById("submit") as HTMLButtonElement).addEventListener(
+      "click",
+      () => {
+        this.scraping = true;
+        this.scrapeSunroof = true;
+        this.loading = true;
+        this.geocodeAddress(geocoder, map, this.address);
+      }
+    );
   
   }
 
@@ -688,25 +691,25 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN LIVE
 
-    // let values = {
-    //     "panel_area": area,
-    //     "house_footage": houseFootage,
-    //     "address": address,
-    //     "azimuth": azimuth,
-    //     "year_built": yearBuilt,
-    //     "household_members": householdMembers
-    //     }
+    let values = {
+        "panel_area": area,
+        "house_footage": houseFootage,
+        "address": address,
+        "azimuth": azimuth,
+        "year_built": yearBuilt,
+        "household_members": householdMembers
+        }
 
     // KEEP FOR GRAPHIC TESTING
 
-    let values = {
-      "panel_area": 595,
-      "house_footage": 1200,
-      "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
-      "azimuth": 0,
-      "year_built": 2000,
-      "household_members": 3
-    }
+    // let values = {
+    //   "panel_area": 595,
+    //   "house_footage": 1200,
+    //   "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
+    //   "azimuth": 0,
+    //   "year_built": 2000,
+    //   "household_members": 3
+    // }
 
     this.flaskConnectService.postValues(values).subscribe(data => {
       if(!data) {
@@ -728,7 +731,7 @@ export class AppComponent implements OnInit {
         console.log('cannot run model!')
         this.postError = true;
       } else {
-        const width = 700;
+        const width = 500;
         const height = 400;
 
         const heightBar = 400;
@@ -737,8 +740,9 @@ export class AppComponent implements OnInit {
         this.breakEvenHigh = data['high']
         this.breakEvenLow = data['low']
         
-        this.drawGraph(width, height, data, 'I=$12k, r=0.2')
-        this.drawBarGraph(widthBar, heightBar, data, 'I=$12k, r=0.2')
+        this.drawGraph(width, height, data, 'I=$12k, r=0.19')
+        this.drawBarGraph(widthBar, heightBar, data, 'I=$12k, r=0.19')
+        this.drawEnergyChart(widthBar, heightBar, data, 'I=$12k, r=0.19')
         
         this.requestData = data;
 
@@ -775,7 +779,7 @@ export class AppComponent implements OnInit {
 
      let yMax = d3.max(datapull, (d) => {return d['year']})
 
-    if(d3.max(datapull, (d)=> { return d['I=$12k, r=0.2']; }) < 0){
+    if(d3.max(datapull, (d)=> { return d['I=$12k, r=0.19']; }) < 0){
       yMax = 0;
     }
 
@@ -790,7 +794,7 @@ export class AppComponent implements OnInit {
 
     const valueline = d3.line()
     .x(function(d) { return x(d['year']); })
-    .y(function(d) { return y(d['I=$12k, r=0.2']); })
+    .y(function(d) { return y(d['I=$12k, r=0.19']); })
     .curve(d3.curveMonotoneX);
 
     const valueline2 = d3.line()
@@ -863,10 +867,13 @@ export class AppComponent implements OnInit {
     let break_even_hi = datapull['high']
     let break_even_lo = datapull['low']
 
+    this.breakEvenHighViz = Math.floor(break_even_hi * .6)
+    this.breakEvenLowViz = Math.floor(break_even_lo * .6)
+
     datapull = datapull['model_data']
 
 
-    const margin = { top: 80, right: 100, bottom: 80, left: 100};
+    const margin = { top: 40, right: 60, bottom: 40, left: 60};
     height = height - margin.top - margin.bottom;
     width = width - margin.right - margin.left;
 
@@ -912,7 +919,7 @@ export class AppComponent implements OnInit {
           .attr("y", 0)
           .attr("width", (x(break_even_hi)) - (x(break_even_lo)))
           .attr("height", height)
-          .style("fill", "#e5efde")
+          .style("fill", "rgba(255, 166, 0, 0.3)")
           .style("fill-opacity", 0.4)
 
 
@@ -921,14 +928,12 @@ export class AppComponent implements OnInit {
           .attr("y", height / 9)
           .text('Likely break even range')
           .attr("font-size", "0.75em")
-          .attr("fill", "#9cb19c");
+          .attr("fill", "rgba(255, 166, 0, 1)");
         
         
         let bisectDate = d3.bisector(function(d){ return (d['year']); }).left;
 
         var left = (document.getElementById("graph").offsetLeft);
-
-        console.log(left)
         
         // Add the x-axis.
         svg.append('g')
@@ -941,14 +946,14 @@ export class AppComponent implements OnInit {
             .call(d3.axisBottom(x).ticks(15).tickSizeOuter(0))
 
             svg.append("text")             
-            .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top - 30) + ")")
+            .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top) + ")")
             .style("text-anchor", "middle")
             .text("Number of Years After Solar Investment")
             .attr('class', 'x-axis-label');
 
             svg.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 0 - margin.left + 30)
+            .attr("y", 0 - margin.left)
             .attr("x",0 - (height / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
@@ -961,7 +966,7 @@ export class AppComponent implements OnInit {
           .attr('class', 'line')
           .attr('fill', 'none')
           .attr('stroke-width', '3px')
-          .attr('stroke', '#525564')
+          .attr('stroke', '#003f5c')
           .attr('d', valueline)
 
         
@@ -981,7 +986,7 @@ export class AppComponent implements OnInit {
           .attr('class', 'line')
           .attr('fill', 'none')
           .attr('stroke-width', '3px')
-          .attr('stroke', '#C25B56')
+          .attr('stroke', '#bc5090')
           .attr('d', valueline2)
 
         path.attr('stroke-dasharray', totalLength + ' ' + totalLength)
@@ -1013,7 +1018,7 @@ export class AppComponent implements OnInit {
 
         focus.append("line")
         .attr("class", "x")
-        .style("stroke", "#525564")
+        .style("stroke", "#003f5c")
         .style("stroke-dasharray", "3,3")
         .style("opacity", 0.5)
         .attr("y1", 0)
@@ -1022,7 +1027,7 @@ export class AppComponent implements OnInit {
         // append the y line
         focus.append("line")
             .attr("class", "y")
-            .style("stroke", "#525564")
+            .style("stroke", "#003f5c")
             .style("stroke-dasharray", "3,3")
             .style("opacity", 0.5)
             .attr("x1", 0)
@@ -1030,8 +1035,8 @@ export class AppComponent implements OnInit {
         
         focus.append("circle")                                 
         .attr("class", "y")                              
-        .style("fill", "#525564")                            
-        .style("stroke", "#525564")
+        .style("fill", "#003f5c")                            
+        .style("stroke", "#003f5c")
         .style("stroke-width", 2)
         .attr("r", 3);  
           
@@ -1049,7 +1054,7 @@ export class AppComponent implements OnInit {
           .attr("dy", "-.95em")
           .attr('font-size', '0.75em')
           .attr('font-weight', '700')
-          .attr('fill', '#525564')
+          .attr('fill', '#003f5c')
               
 
           svg.append("rect")                                   
@@ -1093,7 +1098,7 @@ export class AppComponent implements OnInit {
              .attr('y', height - 55)
              .attr('width', ls_w)
              .attr('height', ls_h)
-             .style('fill', function (d, i) { return '#525564'; })
+             .style('fill', function (d, i) { return '#003f5c'; })
              .style('opacity', 0.8);
 
              legend.append('text')
@@ -1101,7 +1106,7 @@ export class AppComponent implements OnInit {
              .attr('y', height - 50)
              .attr('font-size', '10px')
              .attr('font-weight', '500')
-             .attr('fill', '#525564')
+             .attr('fill', '#003f5c')
              .text(scenario)
              
              legend.append('rect')
@@ -1109,7 +1114,7 @@ export class AppComponent implements OnInit {
              .attr('y', height - 35)
              .attr('width', ls_w)
              .attr('height', ls_h)
-             .style('fill', function (d, i) { return '#C25B56'; })
+             .style('fill', function (d, i) { return '#bc5090'; })
              .style('opacity', 0.8);
              
              legend.append('text')
@@ -1117,7 +1122,7 @@ export class AppComponent implements OnInit {
              .attr('y', height - 30)
              .attr('font-size', '10px')
              .attr('font-weight', '500')
-             .attr('fill', '#C25B56')
+             .attr('fill', '#bc5090')
              .text('Regular grid service');
                     
   }
@@ -1127,17 +1132,15 @@ export class AppComponent implements OnInit {
    
     datapull = datapull['value_data']
 
-    console.log(datapull)
-
     d3.select('.toolTip').remove();
 
-    if(scenario == 'I=$12k, r=0.175' || scenario == 'I=$12k, r=0.2'){
+    if(scenario == 'I=$12k, r=0.175' || scenario == 'I=$12k, r=0.19'){
       this.installationCost = '$12,000';
     } else {
       this.installationCost = '$20,000'
     }
 
-    let tooltip = d3.select('.bar-wrapper').append('div').attr('class', "toolTip")
+    let tooltip = d3.select('.bar').append('div').attr('class', "toolTip")
 
     const margin = { top: 40, right: 60, bottom: 40, left: 60};
     height = height - margin.top - margin.bottom;
@@ -1171,9 +1174,9 @@ export class AppComponent implements OnInit {
             .attr('height', function(d) { return d[scenario + '_value'] > 0 ? yBar(d[scenario + '_value'] * -1) - yBar(0) : yBar(d[scenario + '_value']) - yBar(0); })
             .attr('fill', function(d){
               if(d[scenario + '_value'] < 0){
-                return '#c25b56';
+                return '#de425b';
               } else {
-                return '#a7baa6';
+                return '#488f31';
               }
             })
             .call(function(){
@@ -1216,9 +1219,9 @@ export class AppComponent implements OnInit {
                 .attr('stroke', 'none')
                 .attr('fill', function(d){
                   if(d[scenario + '_value'] < 0){
-                    return '#c25b56';
+                    return '#de425b';
                   } else {
-                    return '#a7baa6';
+                    return '#488f31';
                   }
                 });
             })
@@ -1252,20 +1255,251 @@ export class AppComponent implements OnInit {
           .attr('class', 'x-axis-label')
           .attr('font-size', '0.85em');
 
+          svgBar.append("text")
+          .attr("x", (width / 2))             
+          .attr("y", 0 - (margin.top / 2))
+          .attr("text-anchor", "middle")  
+          .style("font-size", "16px") 
+          .text("Profit Margin of Solar Panels on Your Home");
+
 
   }
+
+
+  drawEnergyChart(width, height, datapull, scenario){
+    datapull = datapull['energy_data']
+
+    console.log('energy data', datapull)
+
+    const margin = { top: 40, right: 60, bottom: 40, left: 60};
+    height = height - margin.top - margin.bottom;
+    width = width - margin.right - margin.left;
+
+    const xBar = d3.scaleBand().range([0, width]).padding(0.10);
+    const yBar = d3.scaleLinear().range([height, 0]);
+
+    xBar.domain(datapull.map(function(d) { return d['Month']; }));
+    yBar.domain([0, d3.max(datapull, function(d) { return d['High'] + 200; })]);
+
+    const valueline = d3.line()
+    .x(function(d) { return xBar(d['Month']) + (xBar.bandwidth() / 2); })
+    .y(function(d) { return yBar(d['usage']); })
+    .curve(d3.curveMonotoneX);
+
+
+    let formatValue = d3.format(",.2f")
+    let formatCurrency = function(d) { return "$" + formatValue(d); };
+
+    const svgBarEnergy = d3.select('.bar-energy-wrapper').append('svg')
+                .attr('width',  width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('class', 'jumbobar-energy')
+                .append('g')
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+
+          let highEnergy = svgBarEnergy.selectAll('.barEnergyHigh')
+            .data(datapull)
+            .enter().append('rect')
+            .attr('x', function(d) { return xBar(d['Month']); })
+            .attr('width', xBar.bandwidth())
+            .attr('y', function(d) { return yBar(d['High'])})
+            .attr('height', function(d) { return height - yBar(d['High'])})
+            .attr('fill', 'rgba(0, 63, 92, 0.9')
+            .on('mouseover', function (event, d) {
+
+              d3.selectAll(highEnergy)
+                .attr('fill', 'rgba(0, 63, 92, 1')
+                .style('cursor', 'crosshair')
+
+              d3.selectAll(lowEnergy)
+                .attr('fill', 'rgba(188, 80, 144, 0.1)')
+            
+        
+            })
+            .on('mouseout', function (d) {
+              d3.select(this)
+                .attr('stroke', 'none')
+              
+              d3.selectAll(highEnergy)
+                .attr('fill', 'rgba(0, 63, 92, 0.9')
+
+              d3.selectAll(lowEnergy)
+                .attr('fill', 'rgba(188, 80, 144, 0.9)')
+
+            })
+
+          
+
+
+          let lowEnergy = svgBarEnergy.selectAll('.barEnergyLow')
+            .data(datapull)
+            .enter().append('rect')
+            .attr('x', function(d) { return xBar(d['Month']); })
+            .attr('width', xBar.bandwidth())
+            .attr('y', function(d) { return yBar(d['Low'])})
+            .attr('height', function(d) { return height - yBar(d['Low'])})
+            .attr('fill', 'rgba(188, 80, 144, 0.9)')
+            .on('mouseover', function (event, d) {
+
+              d3.selectAll(highEnergy)
+                .attr('fill', 'rgba(0, 63, 92, 0.1')
+
+              d3.selectAll(lowEnergy)
+                .attr('fill', 'rgba(188, 80, 144, 1)')
+                .style('cursor', 'crosshair')
+
+        
+            })
+            .on('mouseout', function (d) {
+              d3.select(this)
+                .attr('stroke', 'none')
+              
+              d3.selectAll(highEnergy)
+                .attr('fill', 'rgba(0, 63, 92, 0.9')
+
+              d3.selectAll(lowEnergy)
+                .attr('fill', 'rgba(188, 80, 144, 0.9)')
+
+            })
+
+                    // Add the x-axis.
+        svgBarEnergy.append('g')
+        .attr("class", "y-axis")
+            .call(d3.axisLeft(yBar).ticks(15).tickSizeOuter(0).tickFormat(d => d));
+
+        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            
+        svgBarEnergy.append('g')
+          .attr("class", "x-axis")
+          .attr("transform", "translate(0," + yBar(0) + ")")
+          .call(d3.axisBottom(xBar).tickSizeOuter(0).tickFormat((d, i) => months[i]))
+
+          
+       let path = svgBarEnergy.append('path')
+       .datum(datapull)
+       .attr('class', 'line')
+       .attr('fill', 'none')
+       .attr('stroke-width', '3px')
+       .attr('stroke', '#ffa600')
+       .attr('d', valueline)
+       .on('mouseover', function (event, d) {
+
+        d3.selectAll(path)
+          .attr('stroke-width', '5px')
+
+        d3.selectAll('circle')
+          .attr('r', '5')
+
+  
+      })
+      .on('mouseout', function (d) {
+        d3.selectAll(path)
+          .attr('stroke-width', '3px')
+
+        d3.selectAll('circle')
+          .attr('r', '3')
+
+      })
+
+       svgBarEnergy.selectAll("myCircles")
+       .data(datapull)
+       .enter()
+       .append("circle")
+         .attr("fill", "#ffa600")
+         .attr("stroke", "none")
+         .attr("cx", function(d) { return xBar(d['Month']) + (xBar.bandwidth() / 2) })
+         .attr("cy", function(d) { return yBar(d['usage']) })
+         .attr("r", 3)
+
+        svgBarEnergy.append("text")
+         .attr("transform", "rotate(-90)")
+         .attr("y", 0 - margin.left)
+         .attr("x",0 - (height / 2))
+         .attr("dy", "1em")
+         .style("text-anchor", "middle")
+         .text("Projected Yield (kWh)")
+         .attr('class', 'y-axis-label');   
+
+         svgBarEnergy.append("text")
+         .attr("x", (width / 2))             
+         .attr("y", 0 - (margin.top / 2))
+         .attr("text-anchor", "middle")  
+         .style("font-size", "16px") 
+         .text("Average Monthly Energy Yield");
+
+         const ls_w = 10, ls_h = 15;
+     
+         const legend = svgBarEnergy.append('g')
+         .attr('class', 'legend');
+
+         legend.append('rect')
+         .attr('x', 315)
+         .attr('y', -2)
+         .attr('width', ls_w)
+         .attr('height', ls_h)
+         .style('fill', function (d, i) { return 'rgba(0, 63, 92, 0.9)'; })
+         .style('opacity', 0.8);
+         
+         legend.append('text')
+         .attr('x', 330)
+         .attr('y', 10)
+         .attr('font-size', '10px')
+         .attr('font-weight', '500')
+         .attr('fill', 'rgba(0, 63, 92, 0.9)')
+         .text('High Efficiency Yield');
+
+         legend.append('rect')
+         .attr('x', 315)
+         .attr('y', 15)
+         .attr('width', ls_w)
+         .attr('height', ls_h)
+         .style('fill', function (d, i) { return 'rgba(188, 80, 144, 0.9)'; })
+         .style('opacity', 0.8);
+         
+         legend.append('text')
+         .attr('x', 330)
+         .attr('y', 27)
+         .attr('font-size', '10px')
+         .attr('font-weight', '500')
+         .attr('fill', 'rgba(188, 80, 144, 0.9)')
+         .text('Low Efficiency Yield');
+
+         legend.append('rect')
+         .attr('x', 280)
+         .attr('y', 40)
+         .attr('width', 20)
+         .attr('height', 3)
+         .style('fill', function (d, i) { return '#ffa600'; })
+         .style('opacity', 0.8);
+         
+         legend.append('text')
+         .attr('x', 305)
+         .attr('y', 45)
+         .attr('font-size', '10px')
+         .attr('font-weight', '500')
+         .attr('fill', '#ffa600')
+         .text('Projected Monthly Energy Use');
+
+
+
+  }
+
 
   changeScenario(value){
     this.drawGraphChange(value)
   }
 
   drawGraphChange(value){
-        const width = 700;
+        const width = 500;
         const height = 400;
         const heightBar = 400;
         const widthBar = 500;
         this.drawGraph(width, height, this.requestData, value)
         this.drawBarGraph(widthBar, heightBar, this.requestData, value)
+        this.drawEnergyChart(widthBar, heightBar, this.requestData, value)
   }
 
   restartInputs(){

@@ -64,15 +64,20 @@ g.graph-dummy text {
     padding: 1em;
     display: flex;
     vertical-align: middle;
-    margin-bottom: -2em;
     font-size: 0.95em;
+    margin-top: -2em;
+    margin-left: 2em;
+    border: 1px solid #ddd;
+    max-width: 300px;
+    margin-right: auto;
+    margin-left: auto;
   }
 
 .tooltip-text {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    min-width: 50%;
+    min-width: 80%;
 }
 
 .tooltip-p {
@@ -80,15 +85,24 @@ g.graph-dummy text {
     color: #6c757d;
 
     .pos {
-        color: #a7baa6;
+        color: #488f31;
     }
   
     .neg {
-        color: #c25b56;
+        color: #de425b;
     }
 }
 
 .x-axis-label, .y-axis-label {
     font-size: 0.85em;
+}
+
+.mat-card {
+    max-width: 1200px;
+    margin: 2em auto;
+}
+
+.mat-card-header {
+    padding-top: 2em;
 }
 
