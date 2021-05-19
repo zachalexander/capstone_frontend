@@ -182,15 +182,15 @@ export class AppComponent implements OnInit {
     this.initMap(); 
 
     // KEEP FOR GRAPH TESTING 
-    // this.ready = true;
-    // this.formFinished = true;
-    // this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
-    // this.tableCheck();
+    this.ready = true;
+    this.formFinished = true;
+    this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
+    this.tableCheck();
 
-    // this.roofArea = 595;
-    // this.houseSquareFootage = 1200;
-    // this.heading =  0;
-    // this.year_built = 2001;
+    this.roofArea = 595;
+    this.houseSquareFootage = 1200;
+    this.heading =  0;
+    this.year_built = 2001;
 
 
     this.searchFormGroup = this._formBuilder.group({
@@ -344,20 +344,20 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN TESTING!
 
-    // this.geocodeAddress(geocoder, map, this.address)
+    this.geocodeAddress(geocoder, map, this.address)
 
     // UNCOMMENT WHEN LIVE!
 
 
-    (document.getElementById("submit") as HTMLButtonElement).addEventListener(
-      "click",
-      () => {
-        this.scraping = true;
-        this.scrapeSunroof = true;
-        this.loading = true;
-        this.geocodeAddress(geocoder, map, this.address);
-      }
-    );
+    // (document.getElementById("submit") as HTMLButtonElement).addEventListener(
+    //   "click",
+    //   () => {
+    //     this.scraping = true;
+    //     this.scrapeSunroof = true;
+    //     this.loading = true;
+    //     this.geocodeAddress(geocoder, map, this.address);
+    //   }
+    // );
   
   }
 
@@ -691,25 +691,25 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN LIVE
 
-    let values = {
-        "panel_area": area,
-        "house_footage": houseFootage,
-        "address": address,
-        "azimuth": azimuth,
-        "year_built": yearBuilt,
-        "household_members": householdMembers
-        }
+    // let values = {
+    //     "panel_area": area,
+    //     "house_footage": houseFootage,
+    //     "address": address,
+    //     "azimuth": azimuth,
+    //     "year_built": yearBuilt,
+    //     "household_members": householdMembers
+    //     }
 
     // KEEP FOR GRAPHIC TESTING
 
-    // let values = {
-    //   "panel_area": 595,
-    //   "house_footage": 1200,
-    //   "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
-    //   "azimuth": 0,
-    //   "year_built": 2000,
-    //   "household_members": 3
-    // }
+    let values = {
+      "panel_area": 595,
+      "house_footage": 1200,
+      "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
+      "azimuth": 0,
+      "year_built": 2000,
+      "household_members": 3
+    }
 
     this.flaskConnectService.postValues(values).subscribe(data => {
       if(!data) {
@@ -1057,33 +1057,33 @@ export class AppComponent implements OnInit {
           .attr('fill', '#003f5c')
               
 
-          svg.append("rect")                                   
-              .attr("width", width)                          
-              .attr("height", height)                    
-              .style("fill", "none")                           
-              .style("pointer-events", "all")             
-              .on("mouseover", function() { focus.style("display", null); })
-              .on("mouseout", function() { focus.style("display", "none"); })
-              .on("mousemove", (event, d) => {
+          // svg.append("rect")                                   
+          //     .attr("width", width)                          
+          //     .attr("height", height)                    
+          //     .style("fill", "none")                           
+          //     .style("pointer-events", "all")             
+          //     .on("mouseover", function() { focus.style("display", null); })
+          //     .on("mouseout", function() { focus.style("display", "none"); })
+          //     .on("mousemove", (event, d) => {
 
-                var x0 = x.invert(d3.pointer(event,this)[0] - margin.right - left),
-                i = bisectDate(datapull, x0, 1),
-                d0 = datapull[i - 1],
-                d1 = datapull[i],
-                d = x0 - d0['year'] > d1['year'] - x0 ? d1 : d0;
+          //       var x0 = x.invert(d3.pointer(event,this)[0] - margin.right - left),
+          //       i = bisectDate(datapull, x0, 1),
+          //       d0 = datapull[i - 1],
+          //       d1 = datapull[i],
+          //       d = x0 - d0['year'] > d1['year'] - x0 ? d1 : d0;
 
-              focus.attr("transform", "translate(" + x(d['year']) + "," + y(d[scenario]) + ")");
-              focus.select("text").text('(Cost: ' + formatCurrency(d[scenario]) + ',' + ' Year: ' + Math.round(d['year'] * 10) / 10 + ')');
+          //     focus.attr("transform", "translate(" + x(d['year']) + "," + y(d[scenario]) + ")");
+          //     focus.select("text").text('(Cost: ' + formatCurrency(d[scenario]) + ',' + ' Year: ' + Math.round(d['year'] * 10) / 10 + ')');
         
-              focus.select(".x")
-              .attr("y2", height - y(d[scenario]))
+          //     focus.select(".x")
+          //     .attr("y2", height - y(d[scenario]))
       
-              focus.select(".y")
-                  .attr("transform", "translate(" + (width * -1) + ",0)")
-                  .attr("x2", (width + width));
+          //     focus.select(".y")
+          //         .attr("transform", "translate(" + (width * -1) + ",0)")
+          //         .attr("x2", (width + width));
 
-             })
-             .attr('cursor', 'crosshair');
+          //    })
+          //    .attr('cursor', 'crosshair');
 
              const ext_color_domain = [25, 35, 45, 55, 65];
 
@@ -1132,6 +1132,14 @@ export class AppComponent implements OnInit {
    
     datapull = datapull['value_data']
 
+    let yMax = d3.max(datapull, function(d) { return d[scenario + '_value']; })
+
+    if(yMax < 0){
+      yMax = 1000;
+    } else {
+      yMax = d3.max(datapull, function(d) { return d[scenario + '_value']; })
+    }
+
     d3.select('.toolTip').remove();
 
     if(scenario == 'I=$12k, r=0.175' || scenario == 'I=$12k, r=0.19'){
@@ -1150,7 +1158,7 @@ export class AppComponent implements OnInit {
     const yBar = d3.scaleLinear().range([height, 0]);
 
     xBar.domain(datapull.map(function(d) { return d['year']; }));
-    yBar.domain([d3.min(datapull, function(d) { return d[scenario + '_value'];}), d3.max(datapull, function(d) { return d[scenario + '_value']; })]);
+    yBar.domain([d3.min(datapull, function(d) { return d[scenario + '_value'];}), yMax]);
 
 
     let formatValue = d3.format(",.2f")
@@ -1237,23 +1245,23 @@ export class AppComponent implements OnInit {
           .attr("transform", "translate(0," + yBar(0) + ")")
           .call(d3.axisBottom(xBar).tickFormat("").tickSizeOuter(0))
 
-          svgBar.append("text")             
-          .attr("transform", "translate(" + (width/2) + " ," + (height - 80) + ")")
-          .text("* The difference between the cost")
-          .attr('class', 'x-axis-label')
-          .attr('font-size', '0.85em');
+          // svgBar.append("text")             
+          // .attr("transform", "translate(" + (width/2) + " ," + (height - 80) + ")")
+          // .text("* The difference between the cost")
+          // .attr('class', 'x-axis-label')
+          // .attr('font-size', '0.85em');
 
-          svgBar.append("text")             
-          .attr("transform", "translate(" + (width/2 + 5) + " ," + (height - 65) + ")")
-          .text("of regular grid service and your ")
-          .attr('class', 'x-axis-label')
-          .attr('font-size', '0.85em');
+          // svgBar.append("text")             
+          // .attr("transform", "translate(" + (width/2 + 5) + " ," + (height - 65) + ")")
+          // .text("of regular grid service and your ")
+          // .attr('class', 'x-axis-label')
+          // .attr('font-size', '0.85em');
 
-          svgBar.append("text")             
-          .attr("transform", "translate(" + (width/2 + 5) + " ," + (height - 50) + ")")
-          .text("projected savings with solar (per year)")
-          .attr('class', 'x-axis-label')
-          .attr('font-size', '0.85em');
+          // svgBar.append("text")             
+          // .attr("transform", "translate(" + (width/2 + 5) + " ," + (height - 50) + ")")
+          // .text("projected savings with solar (per year)")
+          // .attr('class', 'x-axis-label')
+          // .attr('font-size', '0.85em');
 
           svgBar.append("text")
           .attr("x", (width / 2))             
@@ -1271,6 +1279,16 @@ export class AppComponent implements OnInit {
 
     console.log('energy data', datapull)
 
+    let highMax = d3.max(datapull, function(d){return d['High']})
+    let usageMax = d3.max(datapull, function(d){return d['usage']})
+    let maxValue;
+
+    if(highMax > usageMax){
+      maxValue = highMax;
+    } else {
+      maxValue = usageMax;
+    }
+
     const margin = { top: 40, right: 60, bottom: 40, left: 60};
     height = height - margin.top - margin.bottom;
     width = width - margin.right - margin.left;
@@ -1279,7 +1297,7 @@ export class AppComponent implements OnInit {
     const yBar = d3.scaleLinear().range([height, 0]);
 
     xBar.domain(datapull.map(function(d) { return d['Month']; }));
-    yBar.domain([0, d3.max(datapull, function(d) { return d['High'] + 200; })]);
+    yBar.domain([0, maxValue + 300]);
 
     const valueline = d3.line()
     .x(function(d) { return xBar(d['Month']) + (xBar.bandwidth() / 2); })
