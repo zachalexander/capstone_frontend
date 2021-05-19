@@ -959,7 +959,7 @@
 <div *ngIf="!chartError" class="graph-wrapper">
         <div *ngIf="finished" class="scenarioSelector">
                 <h4>Starting Costs and Panel Efficiencies</h4>
-                <small class="sim-context">Below, we created a simulation of your expected costs and savings based on the inputs you provided, as well as four different panel efficiencies and panel installation costs.</small>
+                <small class="sim-context">Below, we created a simulation of your expected costs and savings based on the inputs you provided, as well as two different panel efficiencies and panel installation costs.</small>
                 <mat-form-field appearance="fill">
                         <mat-label>Cost and Panel Scenarios</mat-label>
                         <mat-select (selectionChange)="changeScenario($event.value)">
@@ -969,17 +969,27 @@
                         </mat-select>
                 </mat-form-field>
         </div>
-        <div class="top-wrapper" id="graph"></div>
+        <div class="first-row-visuals">
+                <h3>Solar Summary</h3>
+                <div class="d3-viz-context-1" id="graph-left">
+                        <div *ngIf="finished" class="summary">
+                                <p>According to our model, after an initial solar installation cost of {{installationCost}}, you'd <strong>likely break even</strong> on your initial solar panel investment <strong>{{breakEvenLow}} to {{breakEvenHigh}} years</strong> following your installation.</p>
+                        </div>
+                </div>
+                <div class="d3-viz-row-1">
+                        <div class="top-wrapper" id="graph"></div>
+                        <div class="bar">
+                                <div class="bar-wrapper" id="bar-graph"></div>
+                        </div>
+                </div>
+        </div>
 </div>
 
 <div *ngIf="chartError" class="error-wrapper">
         <p>Data could not be loaded properly.</p>
 </div> 
 
-<div *ngIf="finished" class="summary">
-        <p>According to our model, given your home characteristics, you'd <strong>likely break even</strong> on your initial solar panel investment <strong>{{breakEvenLow}} to {{breakEvenHigh}} years</strong> following your installation.</p>
 
-</div>
 
 
 

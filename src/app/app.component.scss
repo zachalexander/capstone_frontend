@@ -373,6 +373,7 @@ body {
 
   .top-wrapper {
       width: 700px;
+      margin: 0;
   }
 
   .sim-context {
@@ -412,3 +413,30 @@ body {
     max-width: 600px;
     margin: auto;
   }
+
+  .bar-wrapper {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      margin: auto;
+  }
+
+  .first-row-visuals {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      h3 {
+        text-align: center;
+        margin: 2em;
+        font-weight: 600;
+      }
+  }
+
+  .d3-viz-row-1, .d3-viz-context-1 {
+      display: flex;
+      flex-direction: row;
+      margin: 0 auto;
+  }
+
+

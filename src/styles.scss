@@ -56,3 +56,39 @@ g.graph-dummy text {
     fill: #ccc;
 
 }
+
+.toolTip {
+    display: flex;
+    justify-content: center;
+    line-height: 0.75em;
+    padding: 1em;
+    display: flex;
+    vertical-align: middle;
+    margin-bottom: -2em;
+    font-size: 0.95em;
+  }
+
+.tooltip-text {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    min-width: 50%;
+}
+
+.tooltip-p {
+    margin: 0 !important;
+    color: #6c757d;
+
+    .pos {
+        color: #a7baa6;
+    }
+  
+    .neg {
+        color: #c25b56;
+    }
+}
+
+.x-axis-label, .y-axis-label {
+    font-size: 0.85em;
+}
+

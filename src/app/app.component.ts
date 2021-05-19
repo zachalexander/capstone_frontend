@@ -124,6 +124,10 @@ export class AppComponent implements OnInit {
   breakEvenHigh;
   breakEvenLow;
 
+  testValue;
+
+  installationCost;
+
   constructor(
     private flaskConnectService: FlaskConnectService,
     private _formBuilder: FormBuilder,
@@ -134,10 +138,10 @@ export class AppComponent implements OnInit {
 
 
   scenario: Scenario[] = [
-    {value: 'I=$15k, r=0.175', scenarioView: 'Initial Cost: $15,000; Panel Efficiency: 17.5%'},
-    {value: 'I=$15k, r=0.2', scenarioView: 'Initial Cost: $15,000; Panel Efficiency: 20.0%'},
-    {value: 'I=$25k, r=0.175', scenarioView: 'Initial Cost: $25,000; Panel Efficiency: 17.5%'},
-    {value: 'I=$25k, r=0.2', scenarioView: 'Initial Cost: $25,000; Panel Efficiency: 20.0%'}
+    {value: 'I=$12k, r=0.175', scenarioView: 'Initial Cost: $12,000; Panel Efficiency: 17.5%'},
+    {value: 'I=$12k, r=0.2', scenarioView: 'Initial Cost: $12,000; Panel Efficiency: 20.0%'},
+    {value: 'I=$20k, r=0.175', scenarioView: 'Initial Cost: $20,000; Panel Efficiency: 17.5%'},
+    {value: 'I=$20k, r=0.2', scenarioView: 'Initial Cost: $20,000; Panel Efficiency: 20.0%'}
   ];
 
   @ViewChild('map', {static: true}) mapElement: any;
@@ -175,15 +179,15 @@ export class AppComponent implements OnInit {
     this.initMap(); 
 
     // KEEP FOR GRAPH TESTING 
-    // this.ready = true;
-    // this.formFinished = true;
-    // this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
-    // this.tableCheck();
+    this.ready = true;
+    this.formFinished = true;
+    this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
+    this.tableCheck();
 
-    // this.roofArea = 595;
-    // this.houseSquareFootage = 1200;
-    // this.heading =  0;
-    // this.year_built = 2001;
+    this.roofArea = 595;
+    this.houseSquareFootage = 1200;
+    this.heading =  0;
+    this.year_built = 2001;
 
 
     this.searchFormGroup = this._formBuilder.group({
@@ -337,20 +341,20 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN TESTING!
 
-    // this.geocodeAddress(geocoder, map, this.address)
+    this.geocodeAddress(geocoder, map, this.address)
 
     // UNCOMMENT WHEN LIVE!
 
 
-    (document.getElementById("submit") as HTMLButtonElement).addEventListener(
-      "click",
-      () => {
-        this.scraping = true;
-        this.scrapeSunroof = true;
-        this.loading = true;
-        this.geocodeAddress(geocoder, map, this.address);
-      }
-    );
+    // (document.getElementById("submit") as HTMLButtonElement).addEventListener(
+    //   "click",
+    //   () => {
+    //     this.scraping = true;
+    //     this.scrapeSunroof = true;
+    //     this.loading = true;
+    //     this.geocodeAddress(geocoder, map, this.address);
+    //   }
+    // );
   
   }
 
@@ -498,6 +502,7 @@ export class AppComponent implements OnInit {
     stepper.next()
     this.measureTool.start();
     this.roofArea = document.getElementById('square-feet').innerHTML;
+    console.log(this.roofArea)
     this.initMapAddress(this.address, "mapMoveOrient")
     document.getElementById('mapMoveOrient').style.height = '400px';
     this.confirm = false;
@@ -607,7 +612,7 @@ export class AppComponent implements OnInit {
   }
 
   editTableYrUpdate(){
-    this.editTableMembers = false;
+    this.editTableYear = false;
     let yearbuilt = (<HTMLInputElement>document.getElementById("yearHouse")).value
     this.year_built = yearbuilt
   }
@@ -683,25 +688,25 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN LIVE
 
-    let values = {
-        "panel_area": area,
-        "house_footage": houseFootage,
-        "address": address,
-        "azimuth": azimuth,
-        "year_built": yearBuilt,
-        "household_members": householdMembers
-        }
+    // let values = {
+    //     "panel_area": area,
+    //     "house_footage": houseFootage,
+    //     "address": address,
+    //     "azimuth": azimuth,
+    //     "year_built": yearBuilt,
+    //     "household_members": householdMembers
+    //     }
 
     // KEEP FOR GRAPHIC TESTING
 
-    // let values = {
-    //   "panel_area": 595,
-    //   "house_footage": 1200,
-    //   "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
-    //   "azimuth": 0,
-    //   "year_built": 2000,
-    //   "household_members": 3
-    // }
+    let values = {
+      "panel_area": 595,
+      "house_footage": 1200,
+      "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
+      "azimuth": 0,
+      "year_built": 2000,
+      "household_members": 3
+    }
 
     this.flaskConnectService.postValues(values).subscribe(data => {
       if(!data) {
@@ -726,10 +731,14 @@ export class AppComponent implements OnInit {
         const width = 700;
         const height = 400;
 
+        const heightBar = 400;
+        const widthBar = 500;
+
         this.breakEvenHigh = data['high']
         this.breakEvenLow = data['low']
         
-        this.drawGraph(width, height, data, 'I=$15k, r=0.2')
+        this.drawGraph(width, height, data, 'I=$12k, r=0.2')
+        this.drawBarGraph(widthBar, heightBar, data, 'I=$12k, r=0.2')
         
         this.requestData = data;
 
@@ -762,9 +771,11 @@ export class AppComponent implements OnInit {
     height = height - margin.top - margin.bottom;
     width = width - margin.right - margin.left;
 
+    console.log(datapull)
+
      let yMax = d3.max(datapull, (d) => {return d['year']})
 
-    if(d3.max(datapull, (d)=> { return d['I=$15k, r=0.2']; }) < 0){
+    if(d3.max(datapull, (d)=> { return d['I=$12k, r=0.2']; }) < 0){
       yMax = 0;
     }
 
@@ -772,14 +783,14 @@ export class AppComponent implements OnInit {
     x.domain([0,d3.max(datapull, (d) => {return d['year']})]);
 
     const y = d3.scaleLinear().range([height, 0]);
-    y.domain([-45000, yMax + 5000]);
+    y.domain([-55000, yMax + 5000]);
 
     let formatValue = d3.format(",.2f")
     let formatCurrency = function(d) { return "$" + formatValue(d); };
 
     const valueline = d3.line()
     .x(function(d) { return x(d['year']); })
-    .y(function(d) { return y(d['I=$15k, r=0.2']); })
+    .y(function(d) { return y(d['I=$12k, r=0.2']); })
     .curve(d3.curveMonotoneX);
 
     const valueline2 = d3.line()
@@ -842,8 +853,6 @@ export class AppComponent implements OnInit {
   }
 
 
-
-
   // d3.js code to draw our initial projection graph
   drawGraph(width, height, datapull, scenario){
 
@@ -871,7 +880,7 @@ export class AppComponent implements OnInit {
     x.domain([0,d3.max(datapull, (d) => {return d['year']})]);
 
     const y = d3.scaleLinear().range([height, 0]);
-    y.domain([-45000, yMax + 5000]);
+    y.domain([-55000, yMax + 5000]);
 
     let formatValue = d3.format(",.2f")
     let formatCurrency = function(d) { return "$" + formatValue(d); };
@@ -897,16 +906,6 @@ export class AppComponent implements OnInit {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                 .attr('class', 'graph')
 
-          // svg.append('defs')
-              // .append('pattern')
-              //   .attr('id', 'diagonalHatch')
-              //   .attr('patternUnits', 'userSpaceOnUse')
-              //   .attr('width', 4)
-              //   .attr('height', 4)
-              // .append('path')
-              //   .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
-              //   .attr('stroke', '#000000')
-              //   .attr('stroke-width', 1);
 
         svg.append("rect")
           .attr("x", x(break_even_lo))
@@ -916,19 +915,6 @@ export class AppComponent implements OnInit {
           .style("fill", "#e5efde")
           .style("fill-opacity", 0.4)
 
-        // svg.append("text")
-        //   .attr("x", (x(highlow[0] * 12) - 30))
-        //   .attr("y", yheight / 4)
-        //   .text('Likely break even')
-        //   .attr("font-size", "0.75em")
-        //   .attr("font-weight", "700");
-        
-        // svg.append("text")
-        //   .attr("x", (x(highlow[0] * 12) - 20))
-        //   .attr("y", yheight / 4 + 15)
-        //   .text('low: ' + parseInt(highlow[0]) + ' years')
-        //   .attr("font-size", "0.75em")
-        //   .attr("font-weight", "700");
 
         svg.append("text")
           .attr("x", (x((break_even_lo + break_even_hi)/2) - 55))
@@ -937,17 +923,12 @@ export class AppComponent implements OnInit {
           .attr("font-size", "0.75em")
           .attr("fill", "#9cb19c");
         
-        // svg.append("text")
-        //   .attr("x", (x(highlow[1] * 12) - 20))
-        //   .attr("y", yheight / 4 + 15)
-        //   .text('high: ' + parseInt(highlow[1]) + ' years')
-        //   .attr("font-size", "0.75em")
-        //   .attr("font-weight", "700");
-        
         
         let bisectDate = d3.bisector(function(d){ return (d['year']); }).left;
 
-        var left = document.getElementById("graph").offsetLeft;
+        var left = (document.getElementById("graph").offsetLeft);
+
+        console.log(left)
         
         // Add the x-axis.
         svg.append('g')
@@ -962,7 +943,8 @@ export class AppComponent implements OnInit {
             svg.append("text")             
             .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top - 30) + ")")
             .style("text-anchor", "middle")
-            .text("Number of Years After Solar Investment");
+            .text("Number of Years After Solar Investment")
+            .attr('class', 'x-axis-label');
 
             svg.append("text")
             .attr("transform", "rotate(-90)")
@@ -970,7 +952,8 @@ export class AppComponent implements OnInit {
             .attr("x",0 - (height / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
-            .text("Projected Cost ($)");   
+            .text("Projected Cost ($)")
+            .attr('class', 'y-axis-label');   
         
 
        let path = svg.append('path')
@@ -1021,8 +1004,6 @@ export class AppComponent implements OnInit {
                 .attr('stroke-dashoffset', 0);
         });
                
-        
-
         
         // WORKING MOUSEOVER EFFECT (BASIC)
 
@@ -1141,6 +1122,139 @@ export class AppComponent implements OnInit {
                     
   }
 
+  drawBarGraph(width, height, datapull, scenario){
+
+   
+    datapull = datapull['value_data']
+
+    console.log(datapull)
+
+    d3.select('.toolTip').remove();
+
+    if(scenario == 'I=$12k, r=0.175' || scenario == 'I=$12k, r=0.2'){
+      this.installationCost = '$12,000';
+    } else {
+      this.installationCost = '$20,000'
+    }
+
+    let tooltip = d3.select('.bar-wrapper').append('div').attr('class', "toolTip")
+
+    const margin = { top: 40, right: 60, bottom: 40, left: 60};
+    height = height - margin.top - margin.bottom;
+    width = width - margin.right - margin.left;
+
+    const xBar = d3.scaleBand().range([0, width]).padding(0.05);
+    const yBar = d3.scaleLinear().range([height, 0]);
+
+    xBar.domain(datapull.map(function(d) { return d['year']; }));
+    yBar.domain([d3.min(datapull, function(d) { return d[scenario + '_value'];}), d3.max(datapull, function(d) { return d[scenario + '_value']; })]);
+
+
+    let formatValue = d3.format(",.2f")
+    let formatCurrency = function(d) { return "$" + formatValue(d); };
+
+    const svgBar = d3.select('.bar-wrapper').append('svg')
+                .attr('width',  width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('class', 'jumbobar')
+                .append('g')
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+      svgBar.selectAll('.bar')
+            .data(datapull)
+            .enter().append('rect')
+            .attr('x', function(d) { return xBar(d['year']); })
+            .attr('width', xBar.bandwidth())
+            .attr('y', function(d) { return d[scenario + '_value'] > 0 ? yBar(d[scenario + '_value']) : yBar(0); })
+            .attr('height', function(d) { return d[scenario + '_value'] > 0 ? yBar(d[scenario + '_value'] * -1) - yBar(0) : yBar(d[scenario + '_value']) - yBar(0); })
+            .attr('fill', function(d){
+              if(d[scenario + '_value'] < 0){
+                return '#c25b56';
+              } else {
+                return '#a7baa6';
+              }
+            })
+            .call(function(){
+                tooltip.html('<div class="tooltip-text"> <p class="tooltip-p"> Year: ' 
+                + '---'
+                + '</p> <p class="tooltip-p"> Loss/Profit: ' 
+                + '---' 
+                + '</p></div>')
+            })
+            .on('mouseover', function (event, d) {
+
+
+              const yPosition = parseFloat(d3.select(this).attr('y'));
+              const xPosition = parseFloat(d3.select(this).attr('x'));
+              const barWidth = parseFloat(d3.select(this).attr('width'));
+              const barHeight = parseFloat(d3.select(this).attr('height'));
+            
+              d3.select(this)
+                .attr('stroke', '#111')
+                .attr('stroke-width', '2')
+                .style('cursor', 'crosshair');
+
+                let red;
+
+                if(d[scenario + '_value'] < 0){
+                  red = "neg"
+                } else {
+                  red = "pos"
+                }
+
+                tooltip.html('<div class="tooltip-text"> <p class="tooltip-p"> Year: <strong class=' + red + '>' 
+                + (d['year']) 
+                + '</strong></p> <p class="tooltip-p"> Loss/Profit: <strong class=' + red + '>' 
+                + formatCurrency((d[scenario + '_value'])) 
+                + '</strong></p></div>')
+        
+            })
+            .on('mouseout', function (d) {
+              d3.select(this)
+                .attr('stroke', 'none')
+                .attr('fill', function(d){
+                  if(d[scenario + '_value'] < 0){
+                    return '#c25b56';
+                  } else {
+                    return '#a7baa6';
+                  }
+                });
+            })
+
+
+        // Add the x-axis.
+        svgBar.append('g')
+        .attr("class", "y-axis")
+            .call(d3.axisLeft(yBar).ticks(15).tickSizeOuter(0).tickFormat(d => (d/1000) + 'K'));
+            
+        svgBar.append('g')
+          .attr("class", "x-axis")
+          .attr("transform", "translate(0," + yBar(0) + ")")
+          .call(d3.axisBottom(xBar).tickFormat("").tickSizeOuter(0))
+
+          svgBar.append("text")             
+          .attr("transform", "translate(" + (width/2) + " ," + (height - 80) + ")")
+          .text("* The difference between the cost")
+          .attr('class', 'x-axis-label')
+          .attr('font-size', '0.85em');
+
+          svgBar.append("text")             
+          .attr("transform", "translate(" + (width/2 + 5) + " ," + (height - 65) + ")")
+          .text("of regular grid service and your ")
+          .attr('class', 'x-axis-label')
+          .attr('font-size', '0.85em');
+
+          svgBar.append("text")             
+          .attr("transform", "translate(" + (width/2 + 5) + " ," + (height - 50) + ")")
+          .text("projected savings with solar (per year)")
+          .attr('class', 'x-axis-label')
+          .attr('font-size', '0.85em');
+
+
+  }
+
   changeScenario(value){
     this.drawGraphChange(value)
   }
@@ -1148,12 +1262,35 @@ export class AppComponent implements OnInit {
   drawGraphChange(value){
         const width = 700;
         const height = 400;
+        const heightBar = 400;
+        const widthBar = 500;
         this.drawGraph(width, height, this.requestData, value)
+        this.drawBarGraph(widthBar, heightBar, this.requestData, value)
   }
 
   restartInputs(){
     window.location.reload();
   }
+
+  closestToZero(numbers) {
+    if(!numbers.length){
+        return 0;
+    }
+    
+    let closest = 0;
+    
+    for (let i = 0; i < numbers.length ; i++) {
+        if (closest === 0) {
+            closest = numbers[i];
+        } else if (numbers[i] > 0 && numbers[i] <= Math.abs(closest)) {
+            closest = numbers[i];
+        } else if (numbers[i] < 0 && - numbers[i] < Math.abs(closest)) {
+            closest = numbers[i];
+        }
+    }
+    
+    return closest;
+}
   
 }
 
