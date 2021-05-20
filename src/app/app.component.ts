@@ -194,15 +194,15 @@ export class AppComponent implements OnInit {
     this.initMap(); 
 
     // KEEP FOR GRAPH TESTING 
-    // this.ready = true;
-    // this.formFinished = true;
-    // this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
-    // this.tableCheck();
+    this.ready = true;
+    this.formFinished = true;
+    this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
+    this.tableCheck();
 
-    // this.roofArea = 595;
-    // this.houseSquareFootage = 1200;
-    // this.heading =  0;
-    // this.year_built = 2001;
+    this.roofArea = 595;
+    this.houseSquareFootage = 1200;
+    this.heading =  0;
+    this.year_built = 2001;
 
 
     this.searchFormGroup = this._formBuilder.group({
@@ -356,20 +356,20 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN TESTING!
 
-    // this.geocodeAddress(geocoder, map, this.address)
+    this.geocodeAddress(geocoder, map, this.address)
 
     // UNCOMMENT WHEN LIVE!
 
 
-    (document.getElementById("submit") as HTMLButtonElement).addEventListener(
-      "click",
-      () => {
-        this.scraping = true;
-        this.scrapeSunroof = true;
-        this.loading = true;
-        this.geocodeAddress(geocoder, map, this.address);
-      }
-    );
+    // (document.getElementById("submit") as HTMLButtonElement).addEventListener(
+    //   "click",
+    //   () => {
+    //     this.scraping = true;
+    //     this.scrapeSunroof = true;
+    //     this.loading = true;
+    //     this.geocodeAddress(geocoder, map, this.address);
+    //   }
+    // );
   
   }
 
@@ -688,7 +688,6 @@ export class AppComponent implements OnInit {
       
       let ratio = this.find_ratio(this.houseSquareFootage, this.year_built, this.household_members)
 
-      // MULTIPLY BY AVERAGE KWH USAGE IN ALBANY AND DIVIDE BY 12?
       this.monthly_bill = ((ratio * 946.93) *  0.1174)
 
       document.getElementById('search-wrapper').style.visibility = 'hidden';
@@ -713,11 +712,18 @@ export class AppComponent implements OnInit {
       this.roofArea = this.roofArea.replace(/,/g, '');
     }
     this.roofArea = parseInt(this.roofArea);
-    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members)
+
+    let fnl_ratio = this.ratio;
+
+    if(this.ratio_update){
+      fnl_ratio = this.ratio_update;
+    }
+
+    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members, fnl_ratio)
   }
 
   // function to post values to the backend database and trigger the model run
-  postValues(area, houseFootage, address, azimuth, yearBuilt, householdMembers): void {
+  postValues(area, houseFootage, address, azimuth, yearBuilt, householdMembers, ratio): void {
 
     area = parseInt(area);
     houseFootage = parseInt(houseFootage)
@@ -727,25 +733,27 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN LIVE
 
-    let values = {
-        "panel_area": area,
-        "house_footage": houseFootage,
-        "address": address,
-        "azimuth": azimuth,
-        "year_built": yearBuilt,
-        "household_members": householdMembers
-        }
+    // let values = {
+    //     "panel_area": area,
+    //     "house_footage": houseFootage,
+    //     "address": address,
+    //     "azimuth": azimuth,
+    //     "year_built": yearBuilt,
+    //     "household_members": householdMembers,
+    //     "ratio": ratio
+    //     }
 
     // KEEP FOR GRAPHIC TESTING
 
-    // let values = {
-    //   "panel_area": 595,
-    //   "house_footage": 1200,
-    //   "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
-    //   "azimuth": 0,
-    //   "year_built": 2000,
-    //   "household_members": 3
-    // }
+    let values = {
+      "panel_area": 595,
+      "house_footage": 1200,
+      "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
+      "azimuth": 0,
+      "year_built": 2000,
+      "household_members": 3,
+      "ratio": 0.145
+    }
 
     this.flaskConnectService.postValues(values).subscribe(data => {
       if(!data) {
@@ -804,7 +812,14 @@ export class AppComponent implements OnInit {
 
   runFinalModelRerun(){
     this.modelRun = true;
-    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members)
+
+    let fnl_ratio = this.ratio;
+
+    if(this.ratio_update){
+      fnl_ratio = this.ratio_update;
+    }
+
+    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members, fnl_ratio)
     this.runFinalModel();
   }
 
