@@ -712,7 +712,7 @@ export class AppComponent implements OnInit {
     }
     this.roofArea = parseInt(this.roofArea);
 
-    let fnl_ratio = this.ratio;
+    let fnl_ratio = 1;
 
     if(this.ratio_update){
       fnl_ratio = this.ratio_update;
@@ -809,7 +809,7 @@ export class AppComponent implements OnInit {
   runFinalModelRerun(){
     this.modelRun = true;
 
-    let fnl_ratio = this.ratio;
+    let fnl_ratio = 1;
 
     if(this.ratio_update){
       fnl_ratio = this.ratio_update;
