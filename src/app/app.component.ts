@@ -689,7 +689,7 @@ export class AppComponent implements OnInit {
       let ratio = this.find_ratio(this.houseSquareFootage, this.year_built, this.household_members)
 
       // MULTIPLY BY AVERAGE KWH USAGE IN ALBANY AND DIVIDE BY 12?
-      this.monthly_bill = ((ratio * 946.93) / 12)
+      this.monthly_bill = ((ratio * 946.93) *  0.1174)
 
       document.getElementById('search-wrapper').style.visibility = 'hidden';
       document.getElementById('searchDiv').style.visibility = 'hidden';
