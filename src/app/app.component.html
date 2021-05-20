@@ -872,38 +872,16 @@
                         </thead>
                         <tbody>
                                 <tr class="input-item">
-                                        <td>Your home square footage</td>
-                                        <td *ngIf="editTableSquare">
-                                                <input name="squareFootage" id="squareFootage" type="text" placeholder="Enter new sqr ft." />
-                                        </td>
-                                        <td *ngIf="!editTableSquare">{{houseSquareFootage | number}} ft&#178;</td>
-                                        <td>
-                                                <button *ngIf="!editTableSquare" id="squareFeet" type="button" class="btn btn-warning" (click)="editTableSqr()">Edit</button>
-                                                <button *ngIf="editTableSquare" id="squareFeet" type="button" class="btn btn-success" (click)="editTableSqrUpdate()">Update</button>
-                                        </td>
-                                </tr>
-                                <tr class="input-item">
-                                        <td>The year your home was built</td>
-        
-                                        <td *ngIf="editTableYear">
-                                                <input name="yearHouse" id="yearHouse" type="text" placeholder="Enter new year built" />
-                                        </td>
-                                        <td *ngIf="!editTableYear">{{year_built}}</td>
-                                        <td>
-                                                <button *ngIf="!editTableYear" id="yearEdit" type="button" class="btn btn-warning" (click)="editTableYr()">Edit</button>
-                                                <button *ngIf="editTableYear" id="yearEdit" type="button" class="btn btn-success" (click)="editTableYrUpdate()">Update</button>
-                                        </td>
-                                </tr>
-                                <tr class="input-item">
-                                        <td>Number of household members</td>
+                                        <td>Your estimated monthly energy bill</td>
 
-                                        <td *ngIf="editTableMembers">
-                                                <input name="membersHouse" id="membersHouse" type="text" placeholder="Enter new member count" />
+                                        <td *ngIf="editTableBill">
+                                                <input name="billTable" id="billTable" type="text" placeholder="Enter new member count" />
                                         </td>
-                                        <td *ngIf="!editTableMembers">{{household_members}}</td>
+                                        <td *ngIf="!editTableBill && !keep_update">{{monthly_bill | currency:'USD'}}</td>
+                                        <td *ngIf="!editTableBill && keep_update">{{monthly_bill_update | currency:'USD'}}</td>
                                         <td>
-                                                <button *ngIf="!editTableMembers" id="membersEdit" type="button" class="btn btn-warning" (click)="editTableMemb()">Edit</button>
-                                                <button *ngIf="editTableMembers" id="membersEdit" type="button" class="btn btn-success" (click)="editTableMembUpdate()">Update</button>
+                                                <button *ngIf="!editTableBill" id="billEdit" type="button" class="btn btn-warning" (click)="editTableBillFun()">Edit</button>
+                                                <button *ngIf="editTableBill" id="billEdit" type="button" class="btn btn-success" (click)="editTableBillUpdate()">Update</button>
                                         </td>
                                 </tr>
                                 <tr class="input-item">
@@ -963,7 +941,7 @@
                                         <small class="sim-context">Below, we created a simulation of your expected costs and savings based on the inputs you provided, as well as two different panel efficiencies and panel installation costs.</small>
                                         <mat-form-field appearance="fill">
                                                 <mat-label>Cost and Panel Scenarios</mat-label>
-                                                <mat-select (selectionChange)="changeScenario($event.value)">
+                                                <mat-select (selectionChange)="changeScenario($event.value)" [(value)]="selected" placeholder="Mode">
                                                         <mat-option *ngFor="let scenario of scenario" [value]="scenario.value">
                                                                 {{scenario.scenarioView}}
                                                         </mat-option>
@@ -982,7 +960,6 @@
                                                 <p class="break-context">The difference between the cost of regular grid service and your projected savings with solar (per year)</p>
                                         </div>
                                 </div>           
-                                <!-- <p>According to our model, after an initial solar installation cost of {{installationCost}}, you'd <strong>likely break even</strong> on your initial solar panel investment <strong>{{breakEvenLow}} to {{breakEvenHigh}} years</strong> following your installation.</p> -->
                         </mat-card-content>
                 </mat-card>
         </div>

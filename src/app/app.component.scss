@@ -228,7 +228,7 @@ body {
 
   }
 
-  #azimuthEdit, #panelEdit, #yearEdit, #squareFeet, #membersEdit {
+  #azimuthEdit, #panelEdit, #yearEdit, #squareFeet, #membersEdit, #billEdit {
       font-size: 0.75em;
       font-weight: 700;
   }
@@ -458,9 +458,9 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    max-width: 90%;
+    max-width: 70%;
     margin: auto;
-    min-height: 280px;
+    min-height: 225px;
     text-align: center;
     vertical-align: middle;
     align-items: center;
@@ -483,7 +483,7 @@ body {
     }
 
     .big-num {
-        font-size: 12em;
+        font-size: 9em;
         color: #003f5c;
     }
 

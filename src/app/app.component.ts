@@ -97,6 +97,7 @@ export class AppComponent implements OnInit {
   editTableArea = false;
   editTableAz = false;
   editTableMembers = false;
+  editTableBill = false;
 
   panel_area;
 
@@ -131,6 +132,14 @@ export class AppComponent implements OnInit {
   breakEvenLowViz;
   breakEvenHighViz;
 
+  ratio;
+  monthly_bill;
+  monthly_bill_update;
+  keep_update = false;
+  ratio_update;
+
+  firstScenario = false;
+
   constructor(
     private flaskConnectService: FlaskConnectService,
     private _formBuilder: FormBuilder,
@@ -139,7 +148,8 @@ export class AppComponent implements OnInit {
     public matDialog: MatDialog
   ) {}
 
-
+  selected = 'I=$12k, r=0.19';
+  
   scenario: Scenario[] = [
     {value: 'I=$12k, r=0.15', scenarioView: 'Initial Cost: $12,000; Panel Efficiency: 15.0%'},
     {value: 'I=$12k, r=0.19', scenarioView: 'Initial Cost: $12,000; Panel Efficiency: 19.0%'},
@@ -147,6 +157,8 @@ export class AppComponent implements OnInit {
     {value: 'I=$20k, r=0.19', scenarioView: 'Initial Cost: $20,000; Panel Efficiency: 19.0%'}
   ];
 
+  
+  
   @ViewChild('map', {static: true}) mapElement: any;
   @Output() setAddress: EventEmitter<any> = new EventEmitter();
   @ViewChild('addresstext') addresstext: any;
@@ -182,15 +194,15 @@ export class AppComponent implements OnInit {
     this.initMap(); 
 
     // KEEP FOR GRAPH TESTING 
-    this.ready = true;
-    this.formFinished = true;
-    this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
-    this.tableCheck();
+    // this.ready = true;
+    // this.formFinished = true;
+    // this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
+    // this.tableCheck();
 
-    this.roofArea = 595;
-    this.houseSquareFootage = 1200;
-    this.heading =  0;
-    this.year_built = 2001;
+    // this.roofArea = 595;
+    // this.houseSquareFootage = 1200;
+    // this.heading =  0;
+    // this.year_built = 2001;
 
 
     this.searchFormGroup = this._formBuilder.group({
@@ -344,20 +356,20 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN TESTING!
 
-    this.geocodeAddress(geocoder, map, this.address)
+    // this.geocodeAddress(geocoder, map, this.address)
 
     // UNCOMMENT WHEN LIVE!
 
 
-    // (document.getElementById("submit") as HTMLButtonElement).addEventListener(
-    //   "click",
-    //   () => {
-    //     this.scraping = true;
-    //     this.scrapeSunroof = true;
-    //     this.loading = true;
-    //     this.geocodeAddress(geocoder, map, this.address);
-    //   }
-    // );
+    (document.getElementById("submit") as HTMLButtonElement).addEventListener(
+      "click",
+      () => {
+        this.scraping = true;
+        this.scrapeSunroof = true;
+        this.loading = true;
+        this.geocodeAddress(geocoder, map, this.address);
+      }
+    );
   
   }
 
@@ -650,6 +662,22 @@ export class AppComponent implements OnInit {
     this.heading = azimuthUpdate;
   }
 
+  editTableBillFun(){
+    this.editTableBill = true;
+  }
+
+  editTableBillUpdate(){
+    this.editTableBill = false;
+    this.keep_update = true;
+    let billUpdate = (<HTMLInputElement>document.getElementById("billTable")).value;
+    this.monthly_bill_update = parseInt(billUpdate);
+    console.log('initial ratio', this.ratio)
+    console.log('updated value for monthly bill', this.monthly_bill_update)
+    console.log('original monthly bill estimate', this.monthly_bill)
+    this.ratio_update = this.monthly_bill_update / this.monthly_bill
+    console.log('update to ratio to feed to backend?', this.ratio_update)
+  }
+
   tableCheck(): void {
     if(this.roofArea == "" || this.houseSquareFootage == "" || this.heading == "" || this.year_built == "" || this.household_members == ""){
       this.ready = false;
@@ -657,6 +685,12 @@ export class AppComponent implements OnInit {
     } else {
       this.ready = true;
       this.formFinished = true;
+      
+      let ratio = this.find_ratio(this.houseSquareFootage, this.year_built, this.household_members)
+
+      // MULTIPLY BY AVERAGE KWH USAGE IN ALBANY AND DIVIDE BY 12?
+      this.monthly_bill = ((ratio * 946.93) / 12)
+
       document.getElementById('search-wrapper').style.visibility = 'hidden';
       document.getElementById('searchDiv').style.visibility = 'hidden';
       document.getElementById('search-wrapper').style.height = '0px';
@@ -665,6 +699,8 @@ export class AppComponent implements OnInit {
       const height = 400;
       this.drawDummyGraph(width, height, this.dummyData)
       this.postClick()
+
+
 
 
       // $element.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
@@ -691,25 +727,25 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN LIVE
 
-    // let values = {
-    //     "panel_area": area,
-    //     "house_footage": houseFootage,
-    //     "address": address,
-    //     "azimuth": azimuth,
-    //     "year_built": yearBuilt,
-    //     "household_members": householdMembers
-    //     }
+    let values = {
+        "panel_area": area,
+        "house_footage": houseFootage,
+        "address": address,
+        "azimuth": azimuth,
+        "year_built": yearBuilt,
+        "household_members": householdMembers
+        }
 
     // KEEP FOR GRAPHIC TESTING
 
-    let values = {
-      "panel_area": 595,
-      "house_footage": 1200,
-      "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
-      "azimuth": 0,
-      "year_built": 2000,
-      "household_members": 3
-    }
+    // let values = {
+    //   "panel_area": 595,
+    //   "house_footage": 1200,
+    //   "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
+    //   "azimuth": 0,
+    //   "year_built": 2000,
+    //   "household_members": 3
+    // }
 
     this.flaskConnectService.postValues(values).subscribe(data => {
       if(!data) {
@@ -739,6 +775,8 @@ export class AppComponent implements OnInit {
 
         this.breakEvenHigh = data['high']
         this.breakEvenLow = data['low']
+
+        console.log('scenario value', this.scenario['value'])
         
         this.drawGraph(width, height, data, 'I=$12k, r=0.19')
         this.drawBarGraph(widthBar, heightBar, data, 'I=$12k, r=0.19')
@@ -746,6 +784,7 @@ export class AppComponent implements OnInit {
         
         this.requestData = data;
 
+        this.firstScenario = true;
         this.modelRun = false;
         this.finished = true;
       }
@@ -862,6 +901,7 @@ export class AppComponent implements OnInit {
 
     d3.selectAll("svg").remove();
 
+
     console.log(datapull)
     
     let break_even_hi = datapull['high']
@@ -887,7 +927,7 @@ export class AppComponent implements OnInit {
     x.domain([0,d3.max(datapull, (d) => {return d['year']})]);
 
     const y = d3.scaleLinear().range([height, 0]);
-    y.domain([-55000, yMax + 5000]);
+    y.domain([d3.min(datapull, function(d){return d['Regular Grid Service']}), yMax + 5000]);
 
     let formatValue = d3.format(",.2f")
     let formatCurrency = function(d) { return "$" + formatValue(d); };
@@ -965,7 +1005,7 @@ export class AppComponent implements OnInit {
           .datum(datapull)
           .attr('class', 'line')
           .attr('fill', 'none')
-          .attr('stroke-width', '3px')
+          .attr('stroke-width', '4px')
           .attr('stroke', '#003f5c')
           .attr('d', valueline)
 
@@ -985,7 +1025,7 @@ export class AppComponent implements OnInit {
           .datum(datapull)
           .attr('class', 'line')
           .attr('fill', 'none')
-          .attr('stroke-width', '3px')
+          .attr('stroke-width', '4px')
           .attr('stroke', '#bc5090')
           .attr('d', valueline2)
 
@@ -1279,6 +1319,12 @@ export class AppComponent implements OnInit {
 
     console.log('energy data', datapull)
 
+    datapull.map((element) => {
+      element.cost = element.usage * 0.1174;
+    })
+
+    console.log(datapull)
+
     let highMax = d3.max(datapull, function(d){return d['High']})
     let usageMax = d3.max(datapull, function(d){return d['usage']})
     let maxValue;
@@ -1295,18 +1341,16 @@ export class AppComponent implements OnInit {
 
     const xBar = d3.scaleBand().range([0, width]).padding(0.10);
     const yBar = d3.scaleLinear().range([height, 0]);
+    const yLine = d3.scaleLinear().range([height, 0]);
 
     xBar.domain(datapull.map(function(d) { return d['Month']; }));
     yBar.domain([0, maxValue + 300]);
+    yLine.domain([0, d3.max(datapull, function(d){return d['cost']}) + 40])
 
     const valueline = d3.line()
     .x(function(d) { return xBar(d['Month']) + (xBar.bandwidth() / 2); })
-    .y(function(d) { return yBar(d['usage']); })
+    .y(function(d) { return yLine(d['cost']); })
     .curve(d3.curveMonotoneX);
-
-
-    let formatValue = d3.format(",.2f")
-    let formatCurrency = function(d) { return "$" + formatValue(d); };
 
     const svgBarEnergy = d3.select('.bar-energy-wrapper').append('svg')
                 .attr('width',  width + margin.left + margin.right)
@@ -1383,7 +1427,7 @@ export class AppComponent implements OnInit {
 
             })
 
-                    // Add the x-axis.
+        // Add the x-axis.
         svgBarEnergy.append('g')
         .attr("class", "y-axis")
             .call(d3.axisLeft(yBar).ticks(15).tickSizeOuter(0).tickFormat(d => d));
@@ -1394,6 +1438,11 @@ export class AppComponent implements OnInit {
           .attr("class", "x-axis")
           .attr("transform", "translate(0," + yBar(0) + ")")
           .call(d3.axisBottom(xBar).tickSizeOuter(0).tickFormat((d, i) => months[i]))
+
+        svgBarEnergy.append("g")
+          .attr("class", "y-axis")
+          .attr("transform", "translate( " + width + ", 0 )")
+          .call(d3.axisRight(yLine).tickSizeOuter(0).tickFormat(d => '$' + d))
 
           
        let path = svgBarEnergy.append('path')
@@ -1429,7 +1478,7 @@ export class AppComponent implements OnInit {
          .attr("fill", "#ffa600")
          .attr("stroke", "none")
          .attr("cx", function(d) { return xBar(d['Month']) + (xBar.bandwidth() / 2) })
-         .attr("cy", function(d) { return yBar(d['usage']) })
+         .attr("cy", function(d) { return yLine(d['cost']) })
          .attr("r", 3)
 
         svgBarEnergy.append("text")
@@ -1440,6 +1489,8 @@ export class AppComponent implements OnInit {
          .style("text-anchor", "middle")
          .text("Projected Yield (kWh)")
          .attr('class', 'y-axis-label');   
+
+
 
          svgBarEnergy.append("text")
          .attr("x", (width / 2))             
@@ -1454,7 +1505,7 @@ export class AppComponent implements OnInit {
          .attr('class', 'legend');
 
          legend.append('rect')
-         .attr('x', 315)
+         .attr('x', 50)
          .attr('y', -2)
          .attr('width', ls_w)
          .attr('height', ls_h)
@@ -1462,7 +1513,7 @@ export class AppComponent implements OnInit {
          .style('opacity', 0.8);
          
          legend.append('text')
-         .attr('x', 330)
+         .attr('x', 65)
          .attr('y', 10)
          .attr('font-size', '10px')
          .attr('font-weight', '500')
@@ -1470,7 +1521,7 @@ export class AppComponent implements OnInit {
          .text('High Efficiency Yield');
 
          legend.append('rect')
-         .attr('x', 315)
+         .attr('x', 50)
          .attr('y', 15)
          .attr('width', ls_w)
          .attr('height', ls_h)
@@ -1478,7 +1529,7 @@ export class AppComponent implements OnInit {
          .style('opacity', 0.8);
          
          legend.append('text')
-         .attr('x', 330)
+         .attr('x', 65)
          .attr('y', 27)
          .attr('font-size', '10px')
          .attr('font-weight', '500')
@@ -1486,28 +1537,27 @@ export class AppComponent implements OnInit {
          .text('Low Efficiency Yield');
 
          legend.append('rect')
-         .attr('x', 280)
-         .attr('y', 40)
+         .attr('x', 200)
+         .attr('y', 15)
          .attr('width', 20)
          .attr('height', 3)
          .style('fill', function (d, i) { return '#ffa600'; })
          .style('opacity', 0.8);
          
          legend.append('text')
-         .attr('x', 305)
-         .attr('y', 45)
+         .attr('x', 225)
+         .attr('y', 20)
          .attr('font-size', '10px')
          .attr('font-weight', '500')
          .attr('fill', '#ffa600')
-         .text('Projected Monthly Energy Use');
-
-
+         .text('Projected Monthly Energy Cost');
 
   }
 
 
   changeScenario(value){
     this.drawGraphChange(value)
+    this.firstScenario = false;
   }
 
   drawGraphChange(value){
@@ -1524,25 +1574,56 @@ export class AppComponent implements OnInit {
     window.location.reload();
   }
 
-  closestToZero(numbers) {
-    if(!numbers.length){
-        return 0;
+  find_ratio(sqft, year_blt, HHM){
+
+    let sqft_col: number;
+    let year_col: number;
+    let hhm_col: number;
+
+    let SQFT_Ratio = [['Base', 1], [1000, 0.47], [1499, 0.78], [1999, 1.1], [2499, 1.11], [2999, 1.26], [10000, 1.52]]
+    
+    let YearBuilt_Ratio = [['Base', 1], [1950, 0.99], [1959, 1.15], [1969, 1.07], [1979, 0.89], [1989, 0.82], [1999, 1.12], [2009, 1.04], [2015, 0.7]]
+    
+    let HHM_Ratio = [['Base', 1], [1, 0.63], [2, 0.97], [3, 1.15], [4, 1.37], [5, 1.33], [6, 1.5]]
+
+    if(sqft == 0){
+      sqft_col = 0;
+    } else if(sqft > 3499){
+      sqft_col = 6;
+    } else {
+      sqft_col = Math.floor((sqft-1000)/500+2)
     }
-    
-    let closest = 0;
-    
-    for (let i = 0; i < numbers.length ; i++) {
-        if (closest === 0) {
-            closest = numbers[i];
-        } else if (numbers[i] > 0 && numbers[i] <= Math.abs(closest)) {
-            closest = numbers[i];
-        } else if (numbers[i] < 0 && - numbers[i] < Math.abs(closest)) {
-            closest = numbers[i];
-        }
+
+    let sqft_rat = SQFT_Ratio[sqft_col][1]
+
+    if(year_blt == 0){
+      year_col = 0;
+    } else {
+      if(year_blt < 1940){
+        year_col = 1;
+      } else {
+        year_col = Math.floor((year_blt-1950)/10+2)
+      }
     }
+    let year_rat = YearBuilt_Ratio[year_col][1]
+
+    if (HHM == 0){
+      hhm_col = 0;
+    } else if (HHM > 6){
+      hhm_col = 6;
+    } else {
+      hhm_col = HHM;
+    }
+    let hhm_rat = HHM_Ratio[hhm_col][1]
+
+    this.ratio = (+sqft_rat*+year_rat*+hhm_rat);
+
+    return this.ratio;
+
+  }
     
-    return closest;
-}
+
+
   
 }
 
