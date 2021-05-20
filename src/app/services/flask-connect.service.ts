@@ -37,6 +37,6 @@ export class FlaskConnectService {
   }
 
   runModel(address): Observable <any> {
-    return this.http.get(`http://localhost:5000/calc/${address}`).pipe(map(response => response))
+    return this.http.get(`https://cuny-capstone-backend.herokuapp.com/calc/${address}`).pipe(map(response => response))
   }
 }
