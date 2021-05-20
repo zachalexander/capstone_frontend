@@ -194,15 +194,15 @@ export class AppComponent implements OnInit {
     this.initMap(); 
 
     // KEEP FOR GRAPH TESTING 
-    this.ready = true;
-    this.formFinished = true;
-    this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
-    this.tableCheck();
+    // this.ready = true;
+    // this.formFinished = true;
+    // this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
+    // this.tableCheck();
 
-    this.roofArea = 595;
-    this.houseSquareFootage = 1200;
-    this.heading =  0;
-    this.year_built = 2001;
+    // this.roofArea = 595;
+    // this.houseSquareFootage = 1200;
+    // this.heading =  0;
+    // this.year_built = 2001;
 
 
     this.searchFormGroup = this._formBuilder.group({
@@ -356,20 +356,20 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN TESTING!
 
-    this.geocodeAddress(geocoder, map, this.address)
+    // this.geocodeAddress(geocoder, map, this.address)
 
     // UNCOMMENT WHEN LIVE!
 
 
-    // (document.getElementById("submit") as HTMLButtonElement).addEventListener(
-    //   "click",
-    //   () => {
-    //     this.scraping = true;
-    //     this.scrapeSunroof = true;
-    //     this.loading = true;
-    //     this.geocodeAddress(geocoder, map, this.address);
-    //   }
-    // );
+    (document.getElementById("submit") as HTMLButtonElement).addEventListener(
+      "click",
+      () => {
+        this.scraping = true;
+        this.scrapeSunroof = true;
+        this.loading = true;
+        this.geocodeAddress(geocoder, map, this.address);
+      }
+    );
   
   }
 
@@ -650,6 +650,7 @@ export class AppComponent implements OnInit {
     this.editTableArea = false;
     let areaPanel = (<HTMLInputElement>document.getElementById("panelArea")).value
     this.roofArea = areaPanel
+    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members, this.ratio_update)
   }
 
   editTableAzimuth(){
@@ -660,6 +661,7 @@ export class AppComponent implements OnInit {
     this.editTableAz = false;
     let azimuthUpdate = (<HTMLInputElement>document.getElementById("azimuthTotal")).value;
     this.heading = azimuthUpdate;
+    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members, this.ratio_update)
   }
 
   editTableBillFun(){
@@ -671,11 +673,8 @@ export class AppComponent implements OnInit {
     this.keep_update = true;
     let billUpdate = (<HTMLInputElement>document.getElementById("billTable")).value;
     this.monthly_bill_update = parseInt(billUpdate);
-    console.log('initial ratio', this.ratio)
-    console.log('updated value for monthly bill', this.monthly_bill_update)
-    console.log('original monthly bill estimate', this.monthly_bill)
     this.ratio_update = this.monthly_bill_update / this.monthly_bill
-    console.log('update to ratio to feed to backend?', this.ratio_update)
+    this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members, this.ratio_update)
   }
 
   tableCheck(): void {
@@ -733,27 +732,27 @@ export class AppComponent implements OnInit {
 
     // UNCOMMENT WHEN LIVE
 
-    // let values = {
-    //     "panel_area": area,
-    //     "house_footage": houseFootage,
-    //     "address": address,
-    //     "azimuth": azimuth,
-    //     "year_built": yearBuilt,
-    //     "household_members": householdMembers,
-    //     "ratio": ratio
-    //     }
+    let values = {
+        "panel_area": area,
+        "house_footage": houseFootage,
+        "address": address,
+        "azimuth": azimuth,
+        "year_built": yearBuilt,
+        "household_members": householdMembers,
+        "ratio": ratio
+        }
 
     // KEEP FOR GRAPHIC TESTING
 
-    let values = {
-      "panel_area": 595,
-      "house_footage": 1200,
-      "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
-      "azimuth": 0,
-      "year_built": 2000,
-      "household_members": 3,
-      "ratio": 0.145
-    }
+    // let values = {
+    //   "panel_area": 595,
+    //   "house_footage": 1200,
+    //   "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
+    //   "azimuth": 0,
+    //   "year_built": 2000,
+    //   "household_members": 3,
+    //   "ratio": 0.145
+    // }
 
     this.flaskConnectService.postValues(values).subscribe(data => {
       if(!data) {
@@ -783,15 +782,12 @@ export class AppComponent implements OnInit {
 
         this.breakEvenHigh = data['high']
         this.breakEvenLow = data['low']
-
-        console.log('scenario value', this.scenario['value'])
         
         this.drawGraph(width, height, data, 'I=$12k, r=0.19')
         this.drawBarGraph(widthBar, heightBar, data, 'I=$12k, r=0.19')
         this.drawEnergyChart(widthBar, heightBar, data, 'I=$12k, r=0.19')
         
         this.requestData = data;
-
         this.firstScenario = true;
         this.modelRun = false;
         this.finished = true;
@@ -820,6 +816,7 @@ export class AppComponent implements OnInit {
     }
 
     this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members, fnl_ratio)
+    
     this.runFinalModel();
   }
 
