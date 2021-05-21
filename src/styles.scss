@@ -42,6 +42,20 @@ mat-dialog-container#modal-component {
     stroke: #6c757d
 }
 
+.x-axis-linechart {
+    path {
+        opacity: 0;
+    }
+    color: #6c757d;
+}
+
+.y-axis-linechart {
+    path {
+        stroke: none;
+    }
+    color: #6c757d;
+}
+
 g.x-axis-dummy text, g.y-axis-dummy text {
     color: #ddd;
     font-size: 1em;
@@ -95,11 +109,6 @@ g.graph-dummy text {
 
 .x-axis-label, .y-axis-label {
     font-size: 0.85em;
-}
-
-.mat-card {
-    max-width: 1200px;
-    margin: 2em auto;
 }
 
 .mat-card-header {

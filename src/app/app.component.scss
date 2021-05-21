@@ -111,10 +111,10 @@ body {
     }
 }
 
-.top-wrapper {
-    margin: auto;
-    display: flex;
-}
+// .top-wrapper {
+//     margin: auto;
+//     display: flex;
+// }
 
 .projection-title {
     h4 {
@@ -371,10 +371,10 @@ body {
       margin: auto;
   }
 
-  .top-wrapper {
-      width: 700px;
-      margin: 0;
-  }
+//   .top-wrapper {
+//       width: 700px;
+//       margin: 0;
+//   }
 
   .sim-context {
       margin: 0 0 2em 0;
@@ -434,22 +434,23 @@ body {
   }
 
   .breakeven-wrapper {
-      display: flex;
-      flex-direction: row;
-      margin: 0 auto;
-      padding: 3em;
+    display: flex;
+    flex-direction: row;
+    padding: 3em;
+    justify-content: center;
   }
 
   .energy-wrapper {
-      max-width: 50%;
-      margin: auto;
-      padding: 2em;
+    max-width: 50%;
+    margin: auto;
+    padding: 2em 0 2em 4em;
   }
 
   .d3-viz-row-2 {
+    justify-content: center;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    max-width: 1200px;
+    margin: auto;
   }
 
  
@@ -460,7 +461,7 @@ body {
     justify-content: space-between;
     max-width: 70%;
     margin: auto;
-    min-height: 225px;
+    min-height: 150px;
     text-align: center;
     vertical-align: middle;
     align-items: center;
@@ -483,7 +484,7 @@ body {
     }
 
     .big-num {
-        font-size: 9em;
+        font-size: 6em;
         color: #003f5c;
     }
 
@@ -498,6 +499,15 @@ body {
   }
 
   .break-context {
+    margin-top: 1em;
+    font-size: 0.85em;
+    max-width: 500px;
+    padding: 2em;
+  }
+
+  .break-context-line {
     margin-top: 2em;
     font-size: 0.85em;
+    max-width: 500px;
+    padding: 2em;
   }

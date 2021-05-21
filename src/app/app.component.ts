@@ -131,6 +131,8 @@ export class AppComponent implements OnInit {
 
   breakEvenLowViz;
   breakEvenHighViz;
+  breakEvenHighVizFull;
+  breakEvenLowVizFull;
 
   ratio;
   monthly_bill;
@@ -196,7 +198,7 @@ export class AppComponent implements OnInit {
     // KEEP FOR GRAPH TESTING 
     // this.ready = true;
     // this.formFinished = true;
-    // this.address = '57 Tamarack Dr, Delmar, NY 12054, USA'
+    // this.address = '23 High St, Rensselaer, NY 12144, USA'
     // this.tableCheck();
 
     // this.roofArea = 595;
@@ -459,7 +461,7 @@ export class AppComponent implements OnInit {
   squareFootageSubmit(stepper: MatStepper){
     this.houseSquareFootage = this.secondFormGroup.value;
     this.houseSquareFootage = this.houseSquareFootage.secondCtrl;
-    stepper.next();
+    // stepper.next();
     this.initMapAddress(this.address, 'mapMove')
     document.getElementById('mapMove').style.height = '0px'
 
@@ -698,10 +700,6 @@ export class AppComponent implements OnInit {
       this.drawDummyGraph(width, height, this.dummyData)
       this.postClick()
 
-
-
-
-      // $element.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
     }
   }
 
@@ -745,13 +743,13 @@ export class AppComponent implements OnInit {
     // KEEP FOR GRAPHIC TESTING
 
     // let values = {
-    //   "panel_area": 595,
+    //   "panel_area": 750,
     //   "house_footage": 1200,
-    //   "address": '57 Tamarack Dr, Delmar, NY 12054, USA',
+    //   "address": '23 High St, Rensselaer, NY 12144, USA',
     //   "azimuth": 0,
     //   "year_built": 2000,
     //   "household_members": 3,
-    //   "ratio": 0.145
+    //   "ratio": 1
     // }
 
     this.flaskConnectService.postValues(values).subscribe(data => {
@@ -914,10 +912,13 @@ export class AppComponent implements OnInit {
     d3.selectAll("svg").remove();
 
 
-    console.log(datapull)
+    // console.log(datapull)
     
     let break_even_hi = datapull['high']
     let break_even_lo = datapull['low']
+
+    this.breakEvenHighVizFull = break_even_hi;
+    this.breakEvenLowVizFull = break_even_lo;
 
     this.breakEvenHighViz = Math.floor(break_even_hi * .6)
     this.breakEvenLowViz = Math.floor(break_even_lo * .6)
@@ -929,17 +930,21 @@ export class AppComponent implements OnInit {
     height = height - margin.top - margin.bottom;
     width = width - margin.right - margin.left;
 
-     let yMax = d3.max(datapull, (d) => {return d[scenario]})
+
+    let yMax = d3.max(datapull, (d) => {return d[scenario]})
 
     if(d3.max(datapull, (d)=> { return d[scenario]; }) < 0){
       yMax = 0;
     }
 
     const x = d3.scaleLinear().range([0, width]);
-    x.domain([0,d3.max(datapull, (d) => {return d['year']})]);
+    x.domain(d3.extent(datapull, (d) => {return d['year']}));
 
     const y = d3.scaleLinear().range([height, 0]);
-    y.domain([d3.min(datapull, function(d){return d['Regular Grid Service']}), yMax + 5000]);
+    y.domain([d3.min(datapull, function(d){return d['Regular Grid Service']}) - 10000, yMax + 5000]);
+
+    
+    let bisectDate = d3.bisector(function(d){ return d['year']}).left;
 
     let formatValue = d3.format(",.2f")
     let formatCurrency = function(d) { return "$" + formatValue(d); };
@@ -960,57 +965,61 @@ export class AppComponent implements OnInit {
                 .attr('height', height + margin.top + margin.bottom)
                 .attr('x', 0)
                 .attr('y', 0)
-                .attr('class', 'projection')
                 .append('g')
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                .attr('class', 'graph')
+                .attr('id', 'graph')
 
-
-        svg.append("rect")
-          .attr("x", x(break_even_lo))
-          .attr("y", 0)
-          .attr("width", (x(break_even_hi)) - (x(break_even_lo)))
-          .attr("height", height)
-          .style("fill", "rgba(255, 166, 0, 0.3)")
-          .style("fill-opacity", 0.4)
-
-
-        svg.append("text")
-          .attr("x", (x((break_even_lo + break_even_hi)/2) - 55))
-          .attr("y", height / 9)
-          .text('Likely break even range')
-          .attr("font-size", "0.75em")
-          .attr("fill", "rgba(255, 166, 0, 1)");
         
-        
-        let bisectDate = d3.bisector(function(d){ return (d['year']); }).left;
+                var areaGradient = svg.append("defs")
+                .append("linearGradient")
+                .attr("id","areaGradient")
+                .attr("x1", "0%").attr("y1", "0%")
+                .attr("x2", "0%").attr("y2", "100%");
+      
+                areaGradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "#003f5c")
+                .attr("stop-opacity", 0.6);
 
-        var left = (document.getElementById("graph").offsetLeft);
+                areaGradient.append("stop")
+                .attr("offset", "80%")
+                .attr("stop-color", "white")
+                .attr("stop-opacity", 0.3);
+      
+                let areaGenerator = d3.area()
+                  .x(function(d) { return x(d['year'])})
+                  .y0(function(d) { return y(d[scenario])})
+                  .y1(function(d) { return y(d['Regular Grid Service'])})
+      
+                svg.append("path")
+                .style("fill", "url(#areaGradient)")
+                .attr("d", areaGenerator(datapull));
+        
         
         // Add the x-axis.
         svg.append('g')
-        .attr("class", "y-axis")
-            .call(d3.axisLeft(y).ticks(15).tickSizeOuter(0).tickFormat(d => (d/1000) + 'K'));
+        .attr("class", "y-axis-linechart")
+            .call(d3.axisLeft(y).tickSizeOuter(0).tickFormat(d => (d/1000) + 'K'));
             
-          svg.append('g')
-            .attr("class", "x-axis")
-            .attr("transform", "translate(0," + (height) + ")")
-            .call(d3.axisBottom(x).ticks(15).tickSizeOuter(0))
+        svg.append('g')
+          .attr("class", "x-axis-linechart")
+          .attr("transform", "translate(0," + (height) + ")")
+          .call(d3.axisBottom(x).tickSizeOuter(0))
 
-            svg.append("text")             
-            .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top) + ")")
-            .style("text-anchor", "middle")
-            .text("Number of Years After Solar Investment")
-            .attr('class', 'x-axis-label');
+        svg.append("text")             
+        .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top) + ")")
+        .style("text-anchor", "middle")
+        .text("Number of Years After Solar Investment")
+        .attr('class', 'x-axis-label');
 
-            svg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 0 - margin.left)
-            .attr("x",0 - (height / 2))
-            .attr("dy", "1em")
-            .style("text-anchor", "middle")
-            .text("Projected Cost ($)")
-            .attr('class', 'y-axis-label');   
+        svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Projected Cost ($)")
+        .attr('class', 'y-axis-label');   
         
 
        let path = svg.append('path')
@@ -1029,7 +1038,6 @@ export class AppComponent implements OnInit {
         } else {
           this.chartError = false;
         }
-
 
         const totalLength = path.node().getTotalLength();
 
@@ -1067,75 +1075,58 @@ export class AppComponent implements OnInit {
         let focus = svg.append("g")
         .attr('class', 'focus')                           
         .style("display", "none");  
-
-        focus.append("line")
-        .attr("class", "x")
-        .style("stroke", "#003f5c")
-        .style("stroke-dasharray", "3,3")
-        .style("opacity", 0.5)
-        .attr("y1", 0)
-        .attr("y2", height);
-
-        // append the y line
-        focus.append("line")
-            .attr("class", "y")
-            .style("stroke", "#003f5c")
-            .style("stroke-dasharray", "3,3")
-            .style("opacity", 0.5)
-            .attr("x1", 0)
-            .attr("x2", width);
         
         focus.append("circle")                                 
         .attr("class", "y")                              
-        .style("fill", "#003f5c")                            
+        .style("fill", "#fff")                            
         .style("stroke", "#003f5c")
         .style("stroke-width", 2)
-        .attr("r", 3);  
+        .attr("r", 4);  
           
-          focus.append('rect')
-          .attr('width', "150px")
-          .attr('height', '20px')
-          .style("fill", 'rgba(255,255,255,0.8)')
-          .style("pointer-events", "all")  
-          .attr('transform', 'translate(-60, -25)')  
-          .attr('padding', '0.25em')             
-          .attr('cursor', 'crosshair');
-        
-          focus.append("text")
-          .attr("x", -50)
-          .attr("dy", "-.95em")
-          .attr('font-size', '0.75em')
-          .attr('font-weight', '700')
-          .attr('fill', '#003f5c')
-              
-
-          // svg.append("rect")                                   
-          //     .attr("width", width)                          
-          //     .attr("height", height)                    
-          //     .style("fill", "none")                           
-          //     .style("pointer-events", "all")             
-          //     .on("mouseover", function() { focus.style("display", null); })
-          //     .on("mouseout", function() { focus.style("display", "none"); })
-          //     .on("mousemove", (event, d) => {
-
-          //       var x0 = x.invert(d3.pointer(event,this)[0] - margin.right - left),
-          //       i = bisectDate(datapull, x0, 1),
-          //       d0 = datapull[i - 1],
-          //       d1 = datapull[i],
-          //       d = x0 - d0['year'] > d1['year'] - x0 ? d1 : d0;
-
-          //     focus.attr("transform", "translate(" + x(d['year']) + "," + y(d[scenario]) + ")");
-          //     focus.select("text").text('(Cost: ' + formatCurrency(d[scenario]) + ',' + ' Year: ' + Math.round(d['year'] * 10) / 10 + ')');
-        
-          //     focus.select(".x")
-          //     .attr("y2", height - y(d[scenario]))
+        focus.append('rect')
+        .attr('width', "150px")
+        .attr('height', '20px')
+        .style("fill", 'rgba(255,255,255,0.8)')
+        .style("pointer-events", "all")  
+        .attr('transform', 'translate(-60, -25)')  
+        .attr('padding', '0.25em')             
+        .attr('cursor', 'crosshair');
       
-          //     focus.select(".y")
-          //         .attr("transform", "translate(" + (width * -1) + ",0)")
-          //         .attr("x2", (width + width));
+        focus.append("text")
+        .attr("x", -50)
+        .attr("dy", "-.95em")
+        .attr('font-size', '0.75em')
+        .attr('font-weight', '700')
+        .attr('fill', '#003f5c')
 
-          //    })
-          //    .attr('cursor', 'crosshair');
+
+        var left = (document.getElementById("graph").offsetLeft);
+
+
+        svg.append("rect")                                   
+            .attr("width", width)                          
+            .attr("height", height)                    
+            .style("fill", "none")                           
+            .style("pointer-events", "all") 
+            .attr('id', 'graph')            
+            .on("mouseover", function() { focus.style("display", null); })
+            .on("mouseout", function() { focus.style("display", "none"); })
+            .on("mousemove", (event, d) => {
+
+              var x0 = x.invert(d3.pointer(event, this)[0] - margin.right - left),
+              i = bisectDate(datapull, x0, 1),
+              d0 = datapull[i - 1],
+              d1 = datapull[i],
+              d = x0 - d0['year'] > d1['year'] - x0 ? d1 : d0;
+
+
+              focus.attr("transform", "translate(" + x(d['year']) + "," + y(d[scenario]) + ")");
+
+              focus.select("text")
+              .text('(Cost: ' + formatCurrency(d[scenario]) + ',' + ' Year: ' + Math.round(d['year'] * 10) / 10 + ')');
+
+            })
+            .attr('cursor', 'crosshair');
 
              const ext_color_domain = [25, 35, 45, 55, 65];
 
@@ -1176,6 +1167,13 @@ export class AppComponent implements OnInit {
              .attr('font-weight', '500')
              .attr('fill', '#bc5090')
              .text('Regular grid service');
+
+             svg.append("text")
+             .attr("x", (width / 2))             
+             .attr("y", 0 - (margin.top / 2))
+             .attr("text-anchor", "middle")  
+             .style("font-size", "16px") 
+             .text("Projected Cost of Solar vs. Regular Grid Service (15 Years)");
                     
   }
 
@@ -1297,23 +1295,6 @@ export class AppComponent implements OnInit {
           .attr("transform", "translate(0," + yBar(0) + ")")
           .call(d3.axisBottom(xBar).tickFormat("").tickSizeOuter(0))
 
-          // svgBar.append("text")             
-          // .attr("transform", "translate(" + (width/2) + " ," + (height - 80) + ")")
-          // .text("* The difference between the cost")
-          // .attr('class', 'x-axis-label')
-          // .attr('font-size', '0.85em');
-
-          // svgBar.append("text")             
-          // .attr("transform", "translate(" + (width/2 + 5) + " ," + (height - 65) + ")")
-          // .text("of regular grid service and your ")
-          // .attr('class', 'x-axis-label')
-          // .attr('font-size', '0.85em');
-
-          // svgBar.append("text")             
-          // .attr("transform", "translate(" + (width/2 + 5) + " ," + (height - 50) + ")")
-          // .text("projected savings with solar (per year)")
-          // .attr('class', 'x-axis-label')
-          // .attr('font-size', '0.85em');
 
           svgBar.append("text")
           .attr("x", (width / 2))             
@@ -1356,8 +1337,8 @@ export class AppComponent implements OnInit {
     const yLine = d3.scaleLinear().range([height, 0]);
 
     xBar.domain(datapull.map(function(d) { return d['Month']; }));
-    yBar.domain([0, maxValue + 300]);
-    yLine.domain([0, d3.max(datapull, function(d){return d['cost']}) + 40])
+    yBar.domain([0, d3.max(datapull, function(d){return d['High']}) * 1.25]);
+    yLine.domain([0, (d3.max(datapull, function(d){return d['High']}) * 0.1174) * 1.25])
 
     const valueline = d3.line()
     .x(function(d) { return xBar(d['Month']) + (xBar.bandwidth() / 2); })
@@ -1442,7 +1423,7 @@ export class AppComponent implements OnInit {
         // Add the x-axis.
         svgBarEnergy.append('g')
         .attr("class", "y-axis")
-            .call(d3.axisLeft(yBar).ticks(15).tickSizeOuter(0).tickFormat(d => d));
+            .call(d3.axisLeft(yBar).tickSizeOuter(0).tickFormat(d => d));
 
         let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
             
@@ -1509,7 +1490,7 @@ export class AppComponent implements OnInit {
          .attr("y", 0 - (margin.top / 2))
          .attr("text-anchor", "middle")  
          .style("font-size", "16px") 
-         .text("Average Monthly Energy Yield");
+         .text("Average Monthly Energy Yield Projection");
 
          const ls_w = 10, ls_h = 15;
      
@@ -1517,7 +1498,7 @@ export class AppComponent implements OnInit {
          .attr('class', 'legend');
 
          legend.append('rect')
-         .attr('x', 50)
+         .attr('x', 20)
          .attr('y', -2)
          .attr('width', ls_w)
          .attr('height', ls_h)
@@ -1525,7 +1506,7 @@ export class AppComponent implements OnInit {
          .style('opacity', 0.8);
          
          legend.append('text')
-         .attr('x', 65)
+         .attr('x', 35)
          .attr('y', 10)
          .attr('font-size', '10px')
          .attr('font-weight', '500')
@@ -1533,7 +1514,7 @@ export class AppComponent implements OnInit {
          .text('High Efficiency Yield');
 
          legend.append('rect')
-         .attr('x', 50)
+         .attr('x', 20)
          .attr('y', 15)
          .attr('width', ls_w)
          .attr('height', ls_h)
@@ -1541,7 +1522,7 @@ export class AppComponent implements OnInit {
          .style('opacity', 0.8);
          
          legend.append('text')
-         .attr('x', 65)
+         .attr('x', 35)
          .attr('y', 27)
          .attr('font-size', '10px')
          .attr('font-weight', '500')
@@ -1549,20 +1530,20 @@ export class AppComponent implements OnInit {
          .text('Low Efficiency Yield');
 
          legend.append('rect')
-         .attr('x', 200)
-         .attr('y', 15)
-         .attr('width', 20)
+         .attr('x', 18)
+         .attr('y', 40)
+         .attr('width', 12)
          .attr('height', 3)
          .style('fill', function (d, i) { return '#ffa600'; })
          .style('opacity', 0.8);
          
          legend.append('text')
-         .attr('x', 225)
-         .attr('y', 20)
+         .attr('x', 33)
+         .attr('y', 45)
          .attr('font-size', '10px')
          .attr('font-weight', '500')
          .attr('fill', '#ffa600')
-         .text('Projected Monthly Energy Cost');
+         .text('Monthly Energy Usage');
 
   }
 

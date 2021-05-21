@@ -928,15 +928,13 @@
         
 </div>
 
-<div class="dummy-div-wrapper">
-        <div class="dummy-wrapper"></div>
-</div>
+
 
 <div *ngIf="!chartError" class="graph-wrapper">
-        <div class="first-row-visuals">
+        <div class="first-row-visuals" id="graph-wrap" *ngIf="ready">
                 <mat-card>
                         <mat-card-header>
-                                <div *ngIf="finished" class="scenarioSelector">
+                                <div class="scenarioSelector">
                                         <h4>Starting Costs and Panel Efficiencies</h4>
                                         <small class="sim-context">Below, we created a simulation of your expected costs and savings based on the inputs you provided, as well as two different panel efficiencies and panel installation costs.</small>
                                         <mat-form-field appearance="fill">
@@ -950,20 +948,23 @@
                                 </div>
                         </mat-card-header>
                         <mat-card-content>    
-                                <div class="breakeven-wrapper">
-                                        <div class="top-wrapper" id="graph"></div>
+                                <div class="breakeven-wrapper" id="graph2">
+                                        <div class="break-wrap">
+                                                <div class="top-wrapper" id="graph"></div>
+                                                <p class="break-context-line">The efficiency of your solar panels, the inputs you entered above, and the cost of your initial solar installment can have a large impact on how quickly you break even in your solar investment. We provide four different scenarios to demonstrate the projected length of time it would take you to reach your break-even point.</p>
+                                        </div>
                         
                                         <div class="break-wrap">
                                                 <div class="bar">
                                                         <div class="bar-wrapper" id="bar-graph"></div>
                                                 </div>
-                                                <p class="break-context">The difference between the cost of regular grid service and your projected savings with solar (per year)</p>
+                                                <p class="break-context">We noticed, that although investing in solar may require a hefty up-front cost, over time, as you rely less on Regular Grid Service for your energy, you'll make up for this initial cost by drastic reductions or complete independence from your monthly energy bill. Based on the information you provided to us, we show you how quickly you'll make up that initial solar investment.</p>
                                         </div>
                                 </div>           
                         </mat-card-content>
                 </mat-card>
         </div>
-        <div class="second-row-visuals">
+        <div class="second-row-visuals" *ngIf="ready">
                 <mat-card>
                         <mat-card-content>
                                 <div class="d3-viz-row-2">
@@ -971,14 +972,18 @@
                                                 <div class="bar">
                                                         <div class="bar-energy-wrapper" id="bar-energy-graph"></div>
                                                 </div>
-                                                <p class="yields-context">Based on the projected energy yields by both our high and low efficiency solar panel percentages, these are the average monthly energy yields over the 15-year simulation period. For comparison, we also show the estimated energy usage for your specific home based on the square footage and number of household members you entered.</p>
+                                                <p class="yields-context">Based on the projected energy yields by both our high and low efficiency solar panel percentages, these are the average monthly energy yields over the 15-year simulation period. For comparison, we also show the estimated energy usage for your specific home based on the square footage, the year your home was built, and number of household members you entered above.</p>
                                         </div>
                                         <div class="sixty-accrue">
-                                                <p>According to our projections, you would likely accrue back 60% of your initial solar panel investment in:</p>
+                                                <p>According to our projections, you would likely accrue back <strong>60%</strong> of your initial solar panel investment in:</p>
                                                 <div class="num-container">
                                                         <p class="big-num">{{breakEvenLowViz}}</p> <p class="smaller-text"> to </p><p class="big-num">{{breakEvenHighViz}}</p> <p class="smaller-text">years.</p>
                                                 </div>
-                                                <p class="weighing-costs"><strong>Why is this important? </strong>When weighing the costs of investing in solar, many homeowners like to factor in the length of time they'll likely live in their current home. By knowing when a large portion of your initial investment will be recouped, you can better plan around the upfront costs, and whether the investment is advantageous for you.</p>
+                                                <p>And, you would likely accrue back <strong>100%</strong> of your initial solar panel investment in:</p>
+                                                <div class="num-container">
+                                                        <p class="big-num">{{breakEvenLowVizFull}}</p> <p class="smaller-text"> to </p><p class="big-num">{{breakEvenHighVizFull}}</p> <p class="smaller-text">years.</p>
+                                                </div>
+                                                <p class="weighing-costs"><strong>Why is this important? </strong>When weighing the costs of investing in solar, many homeowners like to factor in the length of time they'll likely live in their current home. By knowing when a large portion of your initial investment will be recouped, you can better plan around the upfront costs, and whether the investment is advantageous for you. <a href="../assets/Adoption_of_Res_Solar_Pow_Implications_of_Incentives.pdf" target="_blank">We found in our research </a>that prospective solar panel investors are more inclined to make a transition when they are certain that 60% of their investment cost will be covered.</p>
                                         </div>
                                 </div>
                         </mat-card-content>
