@@ -142,6 +142,8 @@ export class AppComponent implements OnInit {
 
   firstScenario = false;
 
+  beforeModelRun = true;
+
   constructor(
     private flaskConnectService: FlaskConnectService,
     private _formBuilder: FormBuilder,
@@ -765,6 +767,7 @@ export class AppComponent implements OnInit {
 
 
   runFinalModel(){
+    this.beforeModelRun = false;
     this.modelRun = true;
     // triggering the model run and if successful, drawing our graph
     this.flaskConnectService.runModel(this.address).subscribe(data => {
@@ -772,6 +775,7 @@ export class AppComponent implements OnInit {
         console.log('cannot run model!')
         this.postError = true;
       } else {
+        console.log(data)
         const width = 500;
         const height = 400;
 
@@ -812,6 +816,8 @@ export class AppComponent implements OnInit {
     if(this.ratio_update){
       fnl_ratio = this.ratio_update;
     }
+
+    console.log(fnl_ratio)
 
     this.postValues(this.roofArea, this.houseSquareFootage, this.address, this.heading, this.year_built, this.household_members, fnl_ratio)
     

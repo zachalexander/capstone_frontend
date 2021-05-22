@@ -931,7 +931,7 @@
 
 
 <div *ngIf="!chartError" class="graph-wrapper">
-        <div class="first-row-visuals" id="graph-wrap" *ngIf="ready">
+        <div class="first-row-visuals" id="graph-wrap" *ngIf="ready && !beforeModelRun">
                 <mat-card>
                         <mat-card-header>
                                 <div class="scenarioSelector">
@@ -964,7 +964,7 @@
                         </mat-card-content>
                 </mat-card>
         </div>
-        <div class="second-row-visuals" *ngIf="ready">
+        <div class="second-row-visuals" *ngIf="ready && !beforeModelRun">
                 <mat-card>
                         <mat-card-content>
                                 <div class="d3-viz-row-2">
